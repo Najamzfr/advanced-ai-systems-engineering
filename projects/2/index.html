@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Customer Intelligence &amp; Campaign Operations Platform — Advanced AI Systems Engineering. Eight weeks of evaluation-first systems work, advanced labs, research and guided capstones."><title>Customer Intelligence &amp; Campaign Operations Platform · A/SE</title><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script><script src="/interactive.js" defer></script><link rel="stylesheet" href="/interactive.css"><link rel="stylesheet" href="/journey.css"><script src="/journey.js" defer></script><link rel="stylesheet" href="/course.css"><script src="/course.js" defer></script><link rel="stylesheet" href="/reader-diagrams.css"><script src="/diagram-viewer.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><aside class="sidebar" id="course-nav"><a class="brand" href="/"><span class="brand-mark">A/SE</span><span>ADVANCED AI<br>SYSTEMS ENGINEERING</span></a><div class="side-label">Course</div><a class="side-link " href="/">Overview</a><a class="side-link " href="/curriculum/">Curriculum</a><div class="side-label">Weeks</div><a class="week-nav " href="/weeks/1/"><span>01</span><span>Models &amp; evaluation</span><i data-week-dot="1"></i></a><a class="week-nav " href="/weeks/2/"><span>02</span><span>Retrieval &amp; context</span><i data-week-dot="2"></i></a><a class="week-nav " href="/weeks/3/"><span>03</span><span>Agents &amp; MCP</span><i data-week-dot="3"></i></a><a class="week-nav " href="/weeks/4/"><span>04</span><span>Planning &amp; multi-agent</span><i data-week-dot="4"></i></a><a class="week-nav " href="/weeks/5/"><span>05</span><span>Reliability &amp; security</span><i data-week-dot="5"></i></a><a class="week-nav " href="/weeks/6/"><span>06</span><span>Adaptation &amp; inference</span><i data-week-dot="6"></i></a><a class="week-nav " href="/weeks/7/"><span>07</span><span>Production &amp; observability</span><i data-week-dot="7"></i></a><a class="week-nav " href="/weeks/8/"><span>08</span><span>Systems defense</span><i data-week-dot="8"></i></a><div class="side-label">Projects</div><a class="side-link " href="/projects/1/">P1 · Evidence-first research</a><a class="side-link active" href="/projects/2/">P2 · Customer intelligence</a><div class="side-label">Study tools</div><a class="side-link" href="/labs/">Labs &amp; assessments</a><a class="side-link" href="/resources/">Reading room</a><a class="side-link" href="/progress/">Your progress</a><div class="side-progress"><span class="eyebrow">YOUR COURSE PROGRESS</span><strong data-progress-label>0% complete</strong><progress data-progress value="0" max="100" aria-label="Course completion"></progress><small>Saved on this browser</small></div></aside><div class="surface"><header class="topbar"><button class="menu" aria-controls="course-nav" aria-expanded="false">Menu</button><span class="eyebrow">Advanced AI Systems Engineering</span><nav aria-label="Primary"><a href="/resources/">Resources</a><a href="/progress/">Progress <span data-small-progress>0%</span></a></nav></header><main id="main" class="inner"><div class="page-content"><div class="page-heading"><div class="eyebrow">GUIDED PROJECT 02 / WEEKS 05—08 · CORE</div><h1>Customer Intelligence &amp; Campaign Operations Platform</h1><p class="lead">Build a reproducible system, measure alternatives, and defend the release.</p></div><section id="dependencies" class="lesson-section"><h2>Build prerequisites in order</h2><p>Each milestone starts from the previous artifact. Complete the linked teaching before implementing and defending the corresponding phase.</p><a class="resource-link" href="/lessons/5-6/"><span>Week 5 · Validated transactions, synthetic policy and security matrix<small>Starting artifact and validation are specified in the guided lab and project phase below.</small></span><span aria-hidden="true">↗</span></a><a class="resource-link" href="/lessons/6-7/"><span>Week 6 · Cutoff-safe profiles and measured adaptation/serving decisions<small>Starting artifact and validation are specified in the guided lab and project phase below.</small></span><span aria-hidden="true">↗</span></a><a class="resource-link" href="/lessons/7-6/"><span>Week 7 · Durable approval, sandbox outbox, telemetry and recovery<small>Starting artifact and validation are specified in the guided lab and project phase below.</small></span><span aria-hidden="true">↗</span></a><a class="resource-link" href="/lessons/8-6/"><span>Week 8 · 150-scenario evaluation, report and production defense<small>Starting artifact and validation are specified in the guided lab and project phase below.</small></span><span aria-hidden="true">↗</span></a></section><section id="problem" class="lesson-section"><h2>Business problem</h2><p>A customer-operations team needs reproducible segmentation and supported campaign drafts while controlling eligibility, approval, duplication, and review effort.</p></section><section id="value" class="lesson-section"><h2>Business value</h2><p>Reduce manual profile assembly and drafting time while maintaining factual and policy correctness. Measure review time, draft acceptance, grounding, and safe workflow completion.</p></section><section id="dataset" class="lesson-section"><h2>Dataset</h2><p><strong>UCI Online Retail</strong>: 541,909 transaction records from December 2010 to December 2011, including InvoiceNo, StockCode, Description, Quantity, InvoiceDate, UnitPrice, CustomerID, and Country. The 22.6 MB workbook is licensed CC BY 4.0. Profile the downloaded file and preserve attribution.</p><a class="resource-link curated" href="https://archive.ics.uci.edu/dataset/352/online+retail"><span><span class="tier core">CORE</span> <span class="resource-type">Dataset · 20 min</span><strong>Online Retail. dataset and download</strong><small>Real transactions enable deterministic customer analytics and temporal evaluation.</small></span><span aria-hidden="true">↗</span></a><p><a href="https://archive.ics.uci.edu/static/public/352/online+retail.zip">Download the dataset archive ↗</a></p><div class="note">The data has no campaign exposures, response labels, contact addresses, or consent records. Use explicitly synthetic contact/consent fixtures and a local simulated action sink. Do not infer or reconstruct real customer identities.</div></section><section id="objectives" class="lesson-section"><h2>Learning objectives</h2><ul><li>Compute deterministic, temporally valid customer profiles.</li><li>Build evidence-constrained research and drafting agents.</li><li>Enforce eligibility and approval outside model prompts.</li><li>Operate durable, observable workflows and measure real task outcomes.</li></ul></section><section id="architecture" class="lesson-section"><h2>Architecture</h2><p>Transactions → validation → cutoff-safe profiles → deterministic eligibility → scoped research/drafting → verification → exact approval → idempotent sandbox dispatch → outcome record.</p></section><section id="diagram" class="lesson-section"><h2>System diagram</h2><figure class="diagram" data-diagram="project2"><figcaption><span class="eyebrow">Interactive diagram</span><h3>Customer intelligence with approved actions</h3></figcaption><div class="diagram-toolbar"><button class="button" type="button" data-expand-diagram="">Expand diagram</button><button class="button" type="button" data-zoom-out="" aria-label="Zoom out">−</button><output data-diagram-scale="" aria-live="polite">100%</output><button class="button" type="button" data-zoom-in="" aria-label="Zoom in">+</button><button class="button" type="button" data-zoom-reset="">Reset view</button></div><div class="diagram-host"><div class="diagram-scroll" tabindex="0" role="region" aria-label="Customer intelligence with approved actions. Scroll within the diagram when zoomed."><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0.00 0.00 468.00 591.00" data-natural-width="468.0" style="min-width:468.0px;max-width:514.8000000000001px" role="group" aria-label="Customer intelligence with approved actions">
+<g id="project2-0-graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 572.56)">
+<!-- n0 -->
+<g id="project2-0-node-0" class="node" data-node="0" tabindex="0" role="button" aria-label="Inspect Retail records" aria-pressed="false">
+<title>n0</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="338.73,-554.56 201.77,-554.56 201.77,-512.8 338.73,-512.8 338.73,-554.56"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="270.25" y="-528.28" font-family="Arial" font-size="18.00">Retail records</text>
+</g>
+<!-- n1 -->
+<g id="project2-0-node-1" class="node" data-node="1" tabindex="0" role="button" aria-label="Inspect Profiles + segments" aria-pressed="false">
+<title>n1</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="362.5,-452 178.01,-452 178.01,-410.24 362.5,-410.24 362.5,-452"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="270.25" y="-425.72" font-family="Arial" font-size="18.00">Profiles + segments</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="project2-0-edge-0" class="edge">
+<title>n0-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M270.25,-512.33C270.25,-497.88 270.25,-478.25 270.25,-462.02"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="273.05,-462.41 270.25,-454.41 267.45,-462.41 273.05,-462.41"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="336" y="-478.2" font-family="Arial" font-size="14.00" fill="#43516a">point-in-time features</text>
+</g>
+<!-- n2 -->
+<g id="project2-0-node-2" class="node" data-node="2" tabindex="0" role="button" aria-label="Inspect Research + draft" aria-pressed="false">
+<title>n2</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="285,-349.44 125.51,-349.44 125.51,-307.68 285,-307.68 285,-349.44"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="205.25" y="-323.16" font-family="Arial" font-size="18.00">Research + draft</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="project2-0-edge-1" class="edge">
+<title>n1-&gt;n2</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M247.5,-409.67C235.67,-399.04 223.65,-388.24 223.65,-388.24 223.65,-388.24 219.17,-373.95 214.63,-359.47"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="217.34,-358.76 212.27,-351.96 212,-360.43 217.34,-358.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="266.45" y="-375.64" font-family="Arial" font-size="14.00" fill="#43516a">eligible profile</text>
+</g>
+<!-- n5 -->
+<g id="project2-0-node-5" class="node" data-node="5" tabindex="0" role="button" aria-label="Inspect State + traces" aria-pressed="false">
+<title>n5</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="300.99,-41.76 163.51,-41.76 163.51,0 300.99,0 300.99,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="232.25" y="-15.48" font-family="Arial" font-size="18.00">State + traces</text>
+</g>
+<!-- n1&#45;&gt;n5 -->
+<g id="project2-0-edge-4" class="edge">
+<title>n1-&gt;n5</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M291.25,-409.67C302.16,-399.04 313.25,-388.24 313.25,-388.24 313.25,-388.24 334.25,-329.56 334.25,-329.56 334.25,-329.56 334.25,-329.56 334.25,-122.44 334.25,-122.44 290.07,-78.88 259.86,-49.1"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="261.96,-47.23 254.3,-43.61 258.03,-51.22 261.96,-47.23"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="383.28" y="-221.8" font-family="Arial" font-size="14.00" fill="#43516a">persist job state</text>
+</g>
+<!-- n3 -->
+<g id="project2-0-node-3" class="node" data-node="3" tabindex="0" role="button" aria-label="Inspect Verify + approve" aria-pressed="false">
+<title>n3</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="179,-246.88 21.51,-246.88 21.51,-205.12 179,-205.12 179,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="100.25" y="-220.6" font-family="Arial" font-size="18.00">Verify + approve</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="project2-0-edge-2" class="edge">
+<title>n2-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M161.76,-307.11C139.15,-296.48 116.18,-285.68 116.18,-285.68 116.18,-285.68 112.31,-271.39 108.37,-256.91"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="111.14,-256.41 106.34,-249.42 105.73,-257.88 111.14,-256.41"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="161.72" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">grounded draft</text>
+</g>
+<!-- n4 -->
+<g id="project2-0-node-4" class="node" data-node="4" tabindex="0" role="button" aria-label="Inspect Outbox + outcomes" aria-pressed="false">
+<title>n4</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="182.51,-144.32 0,-144.32 0,-102.56 182.51,-102.56 182.51,-144.32"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="91.25" y="-118.04" font-family="Arial" font-size="18.00">Outbox + outcomes</text>
+</g>
+<!-- n3&#45;&gt;n4 -->
+<g id="project2-0-edge-3" class="edge">
+<title>n3-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M96.53,-204.55C94.59,-193.92 92.63,-183.12 92.63,-183.12 92.63,-183.12 92.3,-169.1 91.96,-154.77"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="94.77,-154.86 91.78,-146.93 89.17,-154.99 94.77,-154.86"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="142.44" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">approved action</text>
+</g>
+<!-- n4&#45;&gt;n5 -->
+<g id="project2-0-edge-6" class="edge">
+<title>n4-&gt;n5</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M89,-101.99C87.83,-91.36 86.65,-80.56 86.65,-80.56 86.65,-80.56 86.65,-63.76 86.65,-63.76 86.65,-63.76 119.52,-54.31 154.02,-44.38"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="154.48,-47.16 161.4,-42.26 152.93,-41.78 154.48,-47.16"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="146.95" y="-67.96" font-family="Arial" font-size="14.00" fill="#43516a">persist effect status</text>
+</g>
+<!-- n5&#45;&gt;n2 -->
+<g id="project2-0-edge-5" class="edge">
+<title>n5-&gt;n2</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M230.64,-42.14C225.72,-103.91 211.25,-285.68 211.25,-285.68 211.25,-285.68 210.52,-290.78 209.57,-297.43"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="206.82,-296.85 208.46,-305.16 212.37,-297.64 206.82,-296.85"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="260.61" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">resume work</text>
+</g>
+</g>
+</svg></div></div><p>Transaction analytics are deterministic; research is limited to available evidence; campaign actions use a simulated sink.</p><div class="node-controls" aria-label="Inspect diagram components"></div><div class="diagram-detail" aria-live="polite">Select a component to inspect its role and a failure to test.</div><details class="diagram-description"><summary>Read the connections as text</summary><ul><li>Retail records passes to Profiles + segments: point-in-time features.</li><li>Profiles + segments passes to Research + draft: eligible profile.</li><li>Research + draft passes to Verify + approve: grounded draft.</li><li>Verify + approve passes to Outbox + outcomes: approved action.</li><li>Profiles + segments passes to State + traces: persist job state.</li><li>State + traces passes to Research + draft: resume work.</li><li>Outbox + outcomes passes to State + traces: persist effect status.</li></ul></details><dialog class="diagram-dialog" aria-label="Expanded diagram"><header><strong>Customer intelligence with approved actions</strong><button class="button" type="button" data-close-diagram="">Close</button></header><div class="diagram-modal-body"></div></dialog></figure></section><section id="technology" class="lesson-section"><h2>Technology choices</h2><p>Python + FastAPI; pandas or SQL for deterministic profiles; PostgreSQL for transactions, jobs, approvals, and outbox; a typed MCP server; a bounded model client; a Python durable worker or local workflow engine; Docker Compose; OpenTelemetry collector and Grafana. Begin with SQL/product metadata; RAG remains optional and measured.</p></section><section id="prerequisites" class="lesson-section"><h2>Prerequisites</h2><p>Weeks 1–4 primitives, SQL or pandas, typed tool contracts, local containers, and explicit event/state modeling.</p></section><section id="milestones" class="lesson-section"><h2>Milestones</h2><label class="check"><input type="checkbox" data-complete="p2-v2-milestone-0"><span>Week 5. Validate retail records, define synthetic consent policy, and establish the security/evaluation contract.</span></label><label class="check"><input type="checkbox" data-complete="p2-v2-milestone-1"><span>Week 6. Compute temporal profiles, implement typed tools, and benchmark model/serving choices.</span></label><label class="check"><input type="checkbox" data-complete="p2-v2-milestone-2"><span>Week 7. Integrate research, verification, durable approval, sandbox outbox, and observability.</span></label><label class="check"><input type="checkbox" data-complete="p2-v2-milestone-3"><span>Week 8. Complete 150 scenarios, security/chaos tests, the report, and technical defense.</span></label></section><section id="phases" class="lesson-section"><h2>Step-by-step build phases</h2><article class="build-phase"><span class="eyebrow">PHASE 01</span><h3>Ingest the real transaction dataset</h3><p>Download UCI Online Retail and record its checksum/license. Read InvoiceNo, StockCode, Description, Quantity, InvoiceDate, UnitPrice, CustomerID, and Country. Profile missing IDs, cancellations, duplicate rows, nonpositive quantities/prices, and date coverage rather than trusting metadata alone.</p><dl><dt>Produce</dt><dd>raw manifest, schema, rejected-row report, and normalized transactions table.</dd><dt>Acceptance check</dt><dd>Reconcile row counts and gross/cancelled/net amounts; declare the treatment of each rejected/cancelled record.</dd></dl></article><article class="build-phase"><span class="eyebrow">PHASE 02</span><h3>Compute cutoff-safe profiles</h3><p>Choose a historical cutoff, for example 2011-10-01. Derive recency, distinct invoice frequency, and monetary value using only earlier valid purchases. Fix thresholds or fit segments on training data. Keep later transactions exclusively for offline outcome analysis.</p><dl><dt>Produce</dt><dd>customer_profiles(customer_id, cutoff, recency_days, frequency, monetary_value, segment, feature_version).</dd><dt>Acceptance check</dt><dd>No feature uses a future event; deterministic tests cover zero-history customers, cancellation, and currency/units.</dd></dl></article><article class="build-phase"><span class="eyebrow">PHASE 03</span><h3>Create evidence and eligibility tools</h3><p>Build a product catalog from known StockCode/Description records. Add explicitly synthetic campaign policy and consent fixtures, never pretend the dataset contains consent or email. Expose get_customer_profile, list_candidate_products, fetch_product_evidence, check_eligibility, and save_draft. Use SQL first; add RAG only if policy/document retrieval evaluation justifies it.</p><dl><dt>Produce</dt><dd>MCP server, policy.json, synthetic_consent.csv, and typed tool schemas.</dd><dt>Acceptance check</dt><dd>Profile access is scoped; unknown product attributes cannot appear as facts; opted-out fixtures are blocked deterministically.</dd></dl></article><article class="build-phase"><span class="eyebrow">PHASE 04</span><h3>Research and draft under constraints</h3><p>A research agent inspects purchase and product evidence. A proposal component suggests a segment-appropriate draft. A verifier checks facts, allowed fields, destination, and eligibility. Compare with a deterministic template and single-agent baseline before keeping specialists.</p><dl><dt>Produce</dt><dd>Draft(customer_id, evidence_refs, product_ids, text, policy_revision, model_revision, action_digest).</dd><dt>Acceptance check</dt><dd>Every factual statement has a source; no fabricated demographics, contact details, discounts, or conversion promises.</dd></dl></article><article class="build-phase"><span class="eyebrow">PHASE 05</span><h3>Execute a durable approval workflow</h3><p>Schedule profile refresh or accept a new-event fixture. Queue a job with stable event identity; checkpoint after validation and investigation. Store approval bound to the draft digest, destination, approver, and expiry. Send only to a local simulated campaign sink through an idempotent outbox. Track draft accepted/rejected, reviewer time, and dispatch status.</p><dl><dt>Produce</dt><dd>jobs, approvals, outbox, outcomes tables plus a sandbox action log.</dd><dt>Acceptance check</dt><dd>A changed draft requires new approval; duplicate events and worker restarts never duplicate the logical dispatch.</dd></dl></article><article class="build-phase"><span class="eyebrow">PHASE 06</span><h3>Evaluate business and system behavior</h3><p>Build 150 scenarios: normal eligible 30; useful segment/product candidates 30; misleading product text 15; contradictory policy 15; missing data 15; tool failures 15; prompt attacks 15; ambiguous consent/eligibility 15. Evaluate numeric correctness, grounding, policy compliance, reviewer acceptance/time, safe escalation, tokens, latency, and recovery.</p><dl><dt>Produce</dt><dd>Versioned cases, raw results, dashboards, security/fault tests, and final 10–15 page report.</dd><dt>Acceptance check</dt><dd>Report future-purchase ranking as an offline proxy only. No causal uplift claim without treatment/control evidence. Run clean deployment and rollback demos.</dd></dl></article><h3>Deterministic profile example</h3><pre><code>valid = transactions[transactions.InvoiceDate &lt; cutoff]
+# Apply the documented cancellation and invalid-row policy first.
+recency_days = (cutoff - last_purchase).days
+frequency = count_distinct(valid.InvoiceNo)
+monetary = sum(valid.Quantity * valid.UnitPrice)
+# Later transactions are outcomes, never current features.</code></pre></section><section id="evaluation" class="lesson-section"><h2>Evaluation methodology</h2><p>Use the exact 150-scenario category allocation in Phase 6. Separate deterministic profile/eligibility correctness, model grounding, tool/argument accuracy, approval compliance, and end-to-end task success. Hold out later transactions for an offline ranking proxy; measure reviewer acceptance and task time with documented reviewer instructions. A controlled future pilot would be required for causal campaign uplift.</p><figure class="diagram" data-diagram="evaluation"><figcaption><span class="eyebrow">Interactive diagram</span><h3>Evaluation pipeline</h3></figcaption><div class="diagram-toolbar"><button class="button" type="button" data-expand-diagram="">Expand diagram</button><button class="button" type="button" data-zoom-out="" aria-label="Zoom out">−</button><output data-diagram-scale="" aria-live="polite">100%</output><button class="button" type="button" data-zoom-in="" aria-label="Zoom in">+</button><button class="button" type="button" data-zoom-reset="">Reset view</button></div><div class="diagram-host"><div class="diagram-scroll" tabindex="0" role="region" aria-label="Evaluation pipeline. Scroll within the diagram when zoomed."><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0.00 0.00 337.00 385.00" data-natural-width="337.0" style="min-width:337.0px;max-width:370.70000000000005px" role="group" aria-label="Evaluation pipeline">
+<g id="evaluation-1-graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 367.44)">
+<!-- n0 -->
+<g id="evaluation-1-node-0" class="node" data-node="0" tabindex="0" role="button" aria-label="Inspect Dataset" aria-pressed="false">
+<title>n0</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="184.47,-349.44 96.52,-349.44 96.52,-307.68 184.47,-307.68 184.47,-349.44"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="140.5" y="-323.16" font-family="Arial" font-size="18.00">Dataset</text>
+</g>
+<!-- n1 -->
+<g id="evaluation-1-node-1" class="node" data-node="1" tabindex="0" role="button" aria-label="Inspect Candidate A" aria-pressed="false">
+<title>n1</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="124.99,-246.88 0,-246.88 0,-205.12 124.99,-205.12 124.99,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="62.5" y="-220.6" font-family="Arial" font-size="18.00">Candidate A</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="evaluation-1-edge-0" class="edge">
+<title>n0-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M117.21,-307.11C105.1,-296.48 92.8,-285.68 92.8,-285.68 92.8,-285.68 85.14,-270.84 77.52,-256.09"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="80.16,-255.09 74,-249.27 75.18,-257.66 80.16,-255.09"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="130.15" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">same cases</text>
+</g>
+<!-- n2 -->
+<g id="evaluation-1-node-2" class="node" data-node="2" tabindex="0" role="button" aria-label="Inspect Candidate B" aria-pressed="false">
+<title>n2</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="281.99,-246.88 157,-246.88 157,-205.12 281.99,-205.12 281.99,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="219.5" y="-220.6" font-family="Arial" font-size="18.00">Candidate B</text>
+</g>
+<!-- n0&#45;&gt;n2 -->
+<g id="evaluation-1-edge-1" class="edge">
+<title>n0-&gt;n2</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M156.48,-307.21C168.26,-292.22 184.43,-271.64 197.43,-255.08"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="199.58,-256.89 202.32,-248.87 195.17,-253.43 199.58,-256.89"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="222.07" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">same cases</text>
+</g>
+<!-- n3 -->
+<g id="evaluation-1-node-3" class="node" data-node="3" tabindex="0" role="button" aria-label="Inspect Evaluators" aria-pressed="false">
+<title>n3</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="195.98,-144.32 85.01,-144.32 85.01,-102.56 195.98,-102.56 195.98,-144.32"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="140.5" y="-118.04" font-family="Arial" font-size="18.00">Evaluators</text>
+</g>
+<!-- n1&#45;&gt;n3 -->
+<g id="evaluation-1-edge-2" class="edge">
+<title>n1-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M63.71,-204.48C64.71,-187.55 65.96,-166.32 65.96,-166.32 65.96,-166.32 79.9,-158.49 95.72,-149.6"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="96.79,-152.21 102.39,-145.85 94.04,-147.33 96.79,-152.21"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="121.23" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">candidate outputs</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="evaluation-1-edge-3" class="edge">
+<title>n2-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M205.85,-204.48C194.61,-187.55 180.5,-166.32 180.5,-166.32 180.5,-166.32 174.2,-159.73 166.6,-151.78"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="168.94,-150.16 161.39,-146.31 164.89,-154.03 168.94,-150.16"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="246.22" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">candidate outputs</text>
+</g>
+<!-- n4 -->
+<g id="evaluation-1-node-4" class="node" data-node="4" tabindex="0" role="button" aria-label="Inspect Release gate" aria-pressed="false">
+<title>n4</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="206.49,-41.76 74.5,-41.76 74.5,0 206.49,0 206.49,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="140.5" y="-15.48" font-family="Arial" font-size="18.00">Release gate</text>
+</g>
+<!-- n3&#45;&gt;n4 -->
+<g id="evaluation-1-edge-4" class="edge">
+<title>n3-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M140.5,-102.09C140.5,-87.64 140.5,-68.01 140.5,-51.78"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="143.3,-52.17 140.5,-44.17 137.7,-52.17 143.3,-52.17"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="194.18" y="-67.96" font-family="Arial" font-size="14.00" fill="#43516a">scores and slices</text>
+</g>
+</g>
+</svg></div></div><p>Freeze the task distribution before comparing candidates. Keep test evidence separate from tuning.</p><div class="node-controls" aria-label="Inspect diagram components"></div><div class="diagram-detail" aria-live="polite">Select a component to inspect its role and a failure to test.</div><details class="diagram-description"><summary>Read the connections as text</summary><ul><li>Dataset passes to Candidate A: same cases.</li><li>Dataset passes to Candidate B: same cases.</li><li>Candidate A passes to Evaluators: candidate outputs.</li><li>Candidate B passes to Evaluators: candidate outputs.</li><li>Evaluators passes to Release gate: scores and slices.</li></ul></details><dialog class="diagram-dialog" aria-label="Expanded diagram"><header><strong>Evaluation pipeline</strong><button class="button" type="button" data-close-diagram="">Close</button></header><div class="diagram-modal-body"></div></dialog></figure></section><section id="metrics" class="lesson-section"><h2>Metrics</h2><ul><li>Numeric/profile correctness and eligibility compliance</li><li>Grounding, unsupported product claims, tool/argument accuracy</li><li>Draft acceptance and measured reviewer task time</li><li>Duplicate dispatch count, recovery time, approval age, and safe escalation</li><li>p50/p95 latency, tokens, cost per completed approved task</li><li>Temporal future-purchase ranking as an offline proxy; no causal uplift claim</li></ul></section><section id="failure" class="lesson-section"><h2>Failure scenarios</h2><p>Inject missing customer ID, duplicate invoice, cancellation, stale feature cutoff, malicious product text, unknown product attribute, missing consent fixture, model/MCP/database failure, changed approved draft, duplicate event, and a worker crash after dispatch. Verify no unauthorized effect, no fabricated claim, and no duplicate logical send.</p></section><section id="security" class="lesson-section"><h2>Security requirements</h2><p>Scope profiles by allowed customer IDs. Never enrich identities or infer private traits. Validate tool arguments, rate-limit, restrict destinations, isolate untrusted text, and redact trace payloads. Approval must match the exact draft/destination digest and remain unexpired. All course campaign actions use the local sandbox sink.</p><figure class="diagram" data-diagram="security"><figcaption><span class="eyebrow">Interactive diagram</span><h3>Security boundaries</h3></figcaption><div class="diagram-toolbar"><button class="button" type="button" data-expand-diagram="">Expand diagram</button><button class="button" type="button" data-zoom-out="" aria-label="Zoom out">−</button><output data-diagram-scale="" aria-live="polite">100%</output><button class="button" type="button" data-zoom-in="" aria-label="Zoom in">+</button><button class="button" type="button" data-zoom-reset="">Reset view</button></div><div class="diagram-host"><div class="diagram-scroll" tabindex="0" role="region" aria-label="Security boundaries. Scroll within the diagram when zoomed."><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0.00 0.00 380.00 522.00" data-natural-width="380.0" style="min-width:380.0px;max-width:418.00000000000006px" role="group" aria-label="Security boundaries">
+<g id="security-2-graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 503.6)">
+<!-- n0 -->
+<g id="security-2-node-0" class="node" data-node="0" tabindex="0" role="button" aria-label="Inspect Untrusted inputs" aria-pressed="false">
+<title>n0</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="249.25,-485.6 92.25,-485.6 92.25,-443.84 249.25,-443.84 249.25,-485.6"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="170.75" y="-459.32" font-family="Arial" font-size="18.00">Untrusted inputs</text>
+</g>
+<!-- n1 -->
+<g id="security-2-node-1" class="node" data-node="1" tabindex="0" role="button" aria-label="Inspect Isolated context" aria-pressed="false">
+<title>n1</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="246.75,-383.04 94.75,-383.04 94.75,-341.28 246.75,-341.28 246.75,-383.04"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="170.75" y="-356.76" font-family="Arial" font-size="18.00">Isolated context</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="security-2-edge-0" class="edge">
+<title>n0-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M170.75,-443.37C170.75,-428.92 170.75,-409.29 170.75,-393.06"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="173.55,-393.45 170.75,-385.45 167.95,-393.45 173.55,-393.45"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="209.66" y="-409.24" font-family="Arial" font-size="14.00" fill="#43516a">treat as data</text>
+</g>
+<!-- n2 -->
+<g id="security-2-node-2" class="node" data-node="2" tabindex="0" role="button" aria-label="Inspect Proposed action" aria-pressed="false">
+<title>n2</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="248.75,-280.48 92.75,-280.48 92.75,-238.72 248.75,-238.72 248.75,-280.48"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="170.75" y="-254.2" font-family="Arial" font-size="18.00">Proposed action</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="security-2-edge-1" class="edge">
+<title>n1-&gt;n2</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M170.75,-340.81C170.75,-326.36 170.75,-306.73 170.75,-290.5"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="173.55,-290.89 170.75,-282.89 167.95,-290.89 173.55,-290.89"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="210.83" y="-306.68" font-family="Arial" font-size="14.00" fill="#43516a">propose only</text>
+</g>
+<!-- n3 -->
+<g id="security-2-node-3" class="node" data-node="3" tabindex="0" role="button" aria-label="Inspect Authorization" aria-pressed="false">
+<title>n3</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="236.24,-161.12 105.26,-161.12 105.26,-119.36 236.24,-119.36 236.24,-161.12"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="170.75" y="-134.84" font-family="Arial" font-size="18.00">Authorization</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="security-2-edge-2" class="edge">
+<title>n2-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M170.75,-238.16C170.75,-219.65 170.75,-192.14 170.75,-171.16"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="173.55,-171.42 170.75,-163.42 167.95,-171.42 173.55,-171.42"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="232.63" y="-204.12" font-family="Arial" font-size="14.00" fill="#43516a">validate identity and</text>
+<text xml:space="preserve" text-anchor="middle" x="232.63" y="-187.32" font-family="Arial" font-size="14.00" fill="#43516a">scope</text>
+</g>
+<!-- n4 -->
+<g id="security-2-node-4" class="node" data-node="4" tabindex="0" role="button" aria-label="Inspect Approval + effect" aria-pressed="false">
+<title>n4</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="161.5,-41.76 0,-41.76 0,0 161.5,0 161.5,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="80.75" y="-15.48" font-family="Arial" font-size="18.00">Approval + effect</text>
+</g>
+<!-- n3&#45;&gt;n4 -->
+<g id="security-2-edge-3" class="edge">
+<title>n3-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M131.82,-118.79C111.58,-108.16 91.02,-97.36 91.02,-97.36 91.02,-97.36 87.68,-72.85 84.82,-51.76"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="87.62,-51.61 83.77,-44.06 82.07,-52.36 87.62,-51.61"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="156.38" y="-84.76" font-family="Arial" font-size="14.00" fill="#43516a">permitted; approval if</text>
+<text xml:space="preserve" text-anchor="middle" x="156.38" y="-67.96" font-family="Arial" font-size="14.00" fill="#43516a">needed</text>
+</g>
+<!-- n5 -->
+<g id="security-2-node-5" class="node" data-node="5" tabindex="0" role="button" aria-label="Inspect Reject + audit" aria-pressed="false">
+<title>n5</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="329.99,-41.76 193.51,-41.76 193.51,0 329.99,0 329.99,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="261.75" y="-15.48" font-family="Arial" font-size="18.00">Reject + audit</text>
+</g>
+<!-- n3&#45;&gt;n5 -->
+<g id="security-2-edge-4" class="edge">
+<title>n3-&gt;n5</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M197.61,-118.79C211.57,-108.16 225.75,-97.36 225.75,-97.36 225.75,-97.36 237.76,-72.18 247.91,-50.9"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="250.34,-52.31 251.26,-43.88 245.28,-49.9 250.34,-52.31"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="292.57" y="-76.36" font-family="Arial" font-size="14.00" fill="#43516a">denied or invalid</text>
+</g>
+</g>
+</svg></div></div><p>Untrusted content never grants permissions. Enforce access before the side effect.</p><div class="node-controls" aria-label="Inspect diagram components"></div><div class="diagram-detail" aria-live="polite">Select a component to inspect its role and a failure to test.</div><details class="diagram-description"><summary>Read the connections as text</summary><ul><li>Untrusted inputs passes to Isolated context: treat as data.</li><li>Isolated context passes to Proposed action: propose only.</li><li>Proposed action passes to Authorization: validate identity and scope.</li><li>Authorization passes to Approval + effect: permitted; approval if needed.</li><li>Authorization passes to Reject + audit: denied or invalid.</li></ul></details><dialog class="diagram-dialog" aria-label="Expanded diagram"><header><strong>Security boundaries</strong><button class="button" type="button" data-close-diagram="">Close</button></header><div class="diagram-modal-body"></div></dialog></figure></section><section id="observability" class="lesson-section"><h2>Observability</h2><p>Trace ingestion, profile calculation, eligibility, research, draft, verification, approval, and dispatch. Attach safe event/run IDs, feature/policy/model revisions, durations, tokens, errors, and retry counts. Link asynchronous spans and retain a redacted audit trail.</p><figure class="diagram" data-diagram="telemetry"><figcaption><span class="eyebrow">Interactive diagram</span><h3>OpenTelemetry across a request</h3></figcaption><div class="diagram-toolbar"><button class="button" type="button" data-expand-diagram="">Expand diagram</button><button class="button" type="button" data-zoom-out="" aria-label="Zoom out">−</button><output data-diagram-scale="" aria-live="polite">100%</output><button class="button" type="button" data-zoom-in="" aria-label="Zoom in">+</button><button class="button" type="button" data-zoom-reset="">Reset view</button></div><div class="diagram-host"><div class="diagram-scroll" tabindex="0" role="region" aria-label="OpenTelemetry across a request. Scroll within the diagram when zoomed."><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0.00 0.00 301.00 488.00" data-natural-width="301.0" style="min-width:301.0px;max-width:331.1px" role="group" aria-label="OpenTelemetry across a request">
+<g id="telemetry-3-graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 470)">
+<!-- n0 -->
+<g id="telemetry-3-node-0" class="node" data-node="0" tabindex="0" role="button" aria-label="Inspect API span" aria-pressed="false">
+<title>n0</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="180.97,-452 82.01,-452 82.01,-410.24 180.97,-410.24 180.97,-452"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="131.49" y="-425.72" font-family="Arial" font-size="18.00">API span</text>
+</g>
+<!-- n1 -->
+<g id="telemetry-3-node-1" class="node" data-node="1" tabindex="0" role="button" aria-label="Inspect Queue → worker" aria-pressed="false">
+<title>n1</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="210.98,-349.44 52,-349.44 52,-307.68 210.98,-307.68 210.98,-349.44"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="131.49" y="-323.16" font-family="Arial" font-size="18.00">Queue → worker</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="telemetry-3-edge-0" class="edge">
+<title>n0-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M131.49,-409.77C131.49,-395.32 131.49,-375.69 131.49,-359.46"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="134.29,-359.85 131.49,-351.85 128.69,-359.85 134.29,-359.85"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="187.53" y="-375.64" font-family="Arial" font-size="14.00" fill="#43516a">propagate context</text>
+</g>
+<!-- n2 -->
+<g id="telemetry-3-node-2" class="node" data-node="2" tabindex="0" role="button" aria-label="Inspect Model span" aria-pressed="false">
+<title>n2</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="118.98,-246.88 0,-246.88 0,-205.12 118.98,-205.12 118.98,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="59.49" y="-220.6" font-family="Arial" font-size="18.00">Model span</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="telemetry-3-edge-1" class="edge">
+<title>n1-&gt;n2</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M100.7,-307.11C84.69,-296.48 68.43,-285.68 68.43,-285.68 68.43,-285.68 66.29,-271.66 64.11,-257.33"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="66.88,-256.96 62.91,-249.47 61.35,-257.8 66.88,-256.96"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="113.96" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">child operation</text>
+</g>
+<!-- n3 -->
+<g id="telemetry-3-node-3" class="node" data-node="3" tabindex="0" role="button" aria-label="Inspect Tool span" aria-pressed="false">
+<title>n3</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="255.97,-246.88 151,-246.88 151,-205.12 255.97,-205.12 255.97,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="203.49" y="-220.6" font-family="Arial" font-size="18.00">Tool span</text>
+</g>
+<!-- n1&#45;&gt;n3 -->
+<g id="telemetry-3-edge-2" class="edge">
+<title>n1-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M147.11,-307.11C155.24,-296.48 163.49,-285.68 163.49,-285.68 163.49,-285.68 173.79,-270.56 183.94,-255.67"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="186.2,-257.34 188.39,-249.15 181.57,-254.18 186.2,-257.34"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="219.75" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">child operation</text>
+</g>
+<!-- n4 -->
+<g id="telemetry-3-node-4" class="node" data-node="4" tabindex="0" role="button" aria-label="Inspect Collector" aria-pressed="false">
+<title>n4</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="179.96,-144.32 83.02,-144.32 83.02,-102.56 179.96,-102.56 179.96,-144.32"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="131.49" y="-118.04" font-family="Arial" font-size="18.00">Collector</text>
+</g>
+<!-- n2&#45;&gt;n4 -->
+<g id="telemetry-3-edge-3" class="edge">
+<title>n2-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M67.13,-204.48C73.43,-187.55 81.33,-166.32 81.33,-166.32 81.33,-166.32 89.71,-159.33 99.61,-151.06"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="101.14,-153.43 105.49,-146.15 97.55,-149.13 101.14,-153.43"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="117.91" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">export span</text>
+</g>
+<!-- n3&#45;&gt;n4 -->
+<g id="telemetry-3-edge-4" class="edge">
+<title>n3-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M188.92,-204.65C178.18,-189.66 163.45,-169.08 151.6,-152.52"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="154.12,-151.23 147.18,-146.36 149.56,-154.49 154.12,-151.23"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="208.38" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">export span</text>
+</g>
+<!-- n5 -->
+<g id="telemetry-3-node-5" class="node" data-node="5" tabindex="0" role="button" aria-label="Inspect SLO dashboard" aria-pressed="false">
+<title>n5</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="207.49,-41.76 55.49,-41.76 55.49,0 207.49,0 207.49,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="131.49" y="-15.48" font-family="Arial" font-size="18.00">SLO dashboard</text>
+</g>
+<!-- n4&#45;&gt;n5 -->
+<g id="telemetry-3-edge-5" class="edge">
+<title>n4-&gt;n5</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M131.49,-102.09C131.49,-87.64 131.49,-68.01 131.49,-51.78"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="134.29,-52.17 131.49,-44.17 128.69,-52.17 134.29,-52.17"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="194.92" y="-67.96" font-family="Arial" font-size="14.00" fill="#43516a">aggregate indicators</text>
+</g>
+</g>
+</svg></div></div><p>Carry trace context through the queue. Observe model and tool calls without exposing secrets.</p><div class="node-controls" aria-label="Inspect diagram components"></div><div class="diagram-detail" aria-live="polite">Select a component to inspect its role and a failure to test.</div><details class="diagram-description"><summary>Read the connections as text</summary><ul><li>API span passes to Queue → worker: propagate context.</li><li>Queue → worker passes to Model span: child operation.</li><li>Queue → worker passes to Tool span: child operation.</li><li>Model span passes to Collector: export span.</li><li>Tool span passes to Collector: export span.</li><li>Collector passes to SLO dashboard: aggregate indicators.</li></ul></details><dialog class="diagram-dialog" aria-label="Expanded diagram"><header><strong>OpenTelemetry across a request</strong><button class="button" type="button" data-close-diagram="">Close</button></header><div class="diagram-modal-body"></div></dialog></figure></section><section id="workflow" class="lesson-section"><h2>Workflow automation</h2><p>Support scheduled profile refresh and event-triggered jobs. Persist checkpoints and pending approval; apply bounded retries and dead-letter handling. Use a transactional outbox and reconcile the sandbox sink by effect key.</p><figure class="diagram" data-diagram="durable"><figcaption><span class="eyebrow">Interactive diagram</span><h3>Durable workflow</h3></figcaption><div class="diagram-toolbar"><button class="button" type="button" data-expand-diagram="">Expand diagram</button><button class="button" type="button" data-zoom-out="" aria-label="Zoom out">−</button><output data-diagram-scale="" aria-live="polite">100%</output><button class="button" type="button" data-zoom-in="" aria-label="Zoom in">+</button><button class="button" type="button" data-zoom-reset="">Reset view</button></div><div class="diagram-host"><div class="diagram-scroll" tabindex="0" role="region" aria-label="Durable workflow. Scroll within the diagram when zoomed."><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0.00 0.00 543.00 488.00" data-natural-width="543.0" style="min-width:543.0px;max-width:597.3000000000001px" role="group" aria-label="Durable workflow">
+<g id="durable-4-graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 470)">
+<!-- n0 -->
+<g id="durable-4-node-0" class="node" data-node="0" tabindex="0" role="button" aria-label="Inspect Event + queue" aria-pressed="false">
+<title>n0</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="391.25,-452 248.74,-452 248.74,-410.24 391.25,-410.24 391.25,-452"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="320" y="-425.72" font-family="Arial" font-size="18.00">Event + queue</text>
+</g>
+<!-- n1 -->
+<g id="durable-4-node-1" class="node" data-node="1" tabindex="0" role="button" aria-label="Inspect Checkpoint" aria-pressed="false">
+<title>n1</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="377.98,-349.44 262.01,-349.44 262.01,-307.68 377.98,-307.68 377.98,-349.44"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="320" y="-323.16" font-family="Arial" font-size="18.00">Checkpoint</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="durable-4-edge-0" class="edge">
+<title>n0-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M320,-409.77C320,-395.32 320,-375.69 320,-359.46"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="322.8,-359.85 320,-351.85 317.2,-359.85 322.8,-359.85"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="383.81" y="-375.64" font-family="Arial" font-size="14.00" fill="#43516a">persist event identity</text>
+</g>
+<!-- n2 -->
+<g id="durable-4-node-2" class="node" data-node="2" tabindex="0" role="button" aria-label="Inspect Investigate" aria-pressed="false">
+<title>n2</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="306.48,-246.88 193.51,-246.88 193.51,-205.12 306.48,-205.12 306.48,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="250" y="-220.6" font-family="Arial" font-size="18.00">Investigate</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="durable-4-edge-1" class="edge">
+<title>n1-&gt;n2</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M284.59,-307.11C266.19,-296.48 247.49,-285.68 247.49,-285.68 247.49,-285.68 247.49,-268.88 247.49,-268.88 247.49,-268.88 247.8,-263.78 248.2,-257.13"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="250.97,-257.57 248.66,-249.41 245.38,-257.23 250.97,-257.57"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="306.25" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">resume checkpoint</text>
+</g>
+<!-- n3 -->
+<g id="durable-4-node-3" class="node" data-node="3" tabindex="0" role="button" aria-label="Inspect Human approval" aria-pressed="false">
+<title>n3</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="157.99,-144.32 0,-144.32 0,-102.56 157.99,-102.56 157.99,-144.32"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="79" y="-118.04" font-family="Arial" font-size="18.00">Human approval</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="durable-4-edge-2" class="edge">
+<title>n2-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M193.19,-208.69C152.23,-196.93 104.14,-183.12 104.14,-183.12 104.14,-183.12 97.9,-168.56 91.64,-153.94"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="94.29,-153.02 88.57,-146.77 89.14,-155.23 94.29,-153.02"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="174.57" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">review proposed effect</text>
+</g>
+<!-- n5 -->
+<g id="durable-4-node-5" class="node" data-node="5" tabindex="0" role="button" aria-label="Inspect Recovery / DLQ" aria-pressed="false">
+<title>n5</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="404.98,-144.32 251.02,-144.32 251.02,-102.56 404.98,-102.56 404.98,-144.32"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="328" y="-118.04" font-family="Arial" font-size="18.00">Recovery / DLQ</text>
+</g>
+<!-- n2&#45;&gt;n5 -->
+<g id="durable-4-edge-4" class="edge">
+<title>n2-&gt;n5</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M251.29,-204.48C252.36,-187.55 253.7,-166.32 253.7,-166.32 253.7,-166.32 267.59,-158.49 283.36,-149.6"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="284.41,-152.22 290.01,-145.86 281.66,-147.34 284.41,-152.22"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="309.35" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">failure or deadline</text>
+</g>
+<!-- n4 -->
+<g id="durable-4-node-4" class="node" data-node="4" tabindex="0" role="button" aria-label="Inspect Effect + audit" aria-pressed="false">
+<title>n4</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="144.74,-41.76 13.25,-41.76 13.25,0 144.74,0 144.74,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="79" y="-15.48" font-family="Arial" font-size="18.00">Effect + audit</text>
+</g>
+<!-- n3&#45;&gt;n4 -->
+<g id="durable-4-edge-3" class="edge">
+<title>n3-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M79,-102.09C79,-87.64 79,-68.01 79,-51.78"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="81.8,-52.17 79,-44.17 76.2,-52.17 81.8,-52.17"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="122.19" y="-67.96" font-family="Arial" font-size="14.00" fill="#43516a">valid approval</text>
+</g>
+<!-- n5&#45;&gt;n1 -->
+<g id="durable-4-edge-5" class="edge">
+<title>n5-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M348.02,-144.89C358.42,-155.52 369,-166.32 369,-166.32 369,-166.32 369,-285.68 369,-285.68 369,-285.68 360.97,-292.54 351.42,-300.7"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="349.68,-298.51 345.42,-305.83 353.32,-302.76 349.68,-298.51"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="437.87" y="-221.8" font-family="Arial" font-size="14.00" fill="#43516a">reconcile then resume</text>
+</g>
+</g>
+</svg></div></div><p>Persist state and reconcile effects. At-least-once delivery requires application-level idempotency.</p><div class="node-controls" aria-label="Inspect diagram components"></div><div class="diagram-detail" aria-live="polite">Select a component to inspect its role and a failure to test.</div><details class="diagram-description"><summary>Read the connections as text</summary><ul><li>Event + queue passes to Checkpoint: persist event identity.</li><li>Checkpoint passes to Investigate: resume checkpoint.</li><li>Investigate passes to Human approval: review proposed effect.</li><li>Human approval passes to Effect + audit: valid approval.</li><li>Investigate passes to Recovery / DLQ: failure or deadline.</li><li>Recovery / DLQ passes to Checkpoint: reconcile then resume.</li></ul></details><dialog class="diagram-dialog" aria-label="Expanded diagram"><header><strong>Durable workflow</strong><button class="button" type="button" data-close-diagram="">Close</button></header><div class="diagram-modal-body"></div></dialog></figure></section><section id="deployment" class="lesson-section"><h2>Deployment</h2><p>Provide a local Compose stack for API, worker, MCP server, database, and telemetry. Add health checks and a seed fixture command. Keep secrets outside Git. A deterministic fixture run must work without paid APIs; actual model experiments must be identified separately and disclose hardware or provider cost. Version the release and demonstrate clean setup, restart, and rollback.</p><pre><code># Commands your project Makefile must implement
+make setup       # install pinned dependencies / validate configuration
+make seed        # load declared fixtures
+make test        # contracts and deterministic invariants
+make eval        # versioned evaluation; record run mode
+make up          # start local services
+make demo        # replay the documented scenario</code></pre></section><section id="references" class="lesson-section"><h2>Comparable projects</h2><article class="reference-study"><h3><a href="https://github.com/PacktPublishing/LLM-Engineers-Handbook">LLM Engineer's Handbook implementation ↗</a></h3><dl><dt>What it does well</dt><dd>Connects data, feature, training, inference, and release pipelines.</dd><dt>What to learn</dt><dd>Keep artifact/version contracts between pipeline stages.</dd><dt>What not to copy</dt><dd>Do not copy the LLM twin identity or require its AWS/tooling stack.</dd><dt>Our extension to test</dt><dd>Use retail analytics, consent fixtures, scoped tools, and measurable review outcomes.</dd></dl></article><article class="reference-study"><h3><a href="https://github.com/n8n-io/self-hosted-ai-starter-kit">n8n self-hosted AI starter kit ↗</a></h3><dl><dt>What it does well</dt><dd>Provides a local environment for workflow experiments.</dd><dt>What to learn</dt><dd>Study the separation between workflow steps and model services.</dd><dt>What not to copy</dt><dd>Do not equate a starter deployment with validated production security or durability.</dd><dt>Our extension to test</dt><dd>Add checkpoint/effect invariants, approval binding, and controlled failure tests.</dd></dl></article><article class="reference-study"><h3><a href="https://github.com/microsoft/autogen">AutoGen · architecture reference ↗</a></h3><dl><dt>What it does well</dt><dd>Makes multi-agent interaction patterns inspectable.</dd><dt>What to learn</dt><dd>Study narrow specialist interfaces and compare them to a single-agent baseline.</dd><dt>What not to copy</dt><dd>Do not add agents just because a framework supports them.</dd><dt>Our extension to test</dt><dd>Require equal-budget evidence and keep analytics/eligibility deterministic.</dd></dl></article></section><section id="stretch" class="lesson-section"><h2>Stretch goals</h2><span class="tier deep">DEEP DIVE</span><p>Add policy-document RAG if a measured SQL/metadata baseline fails. Explore preference tuning or a controlled synthetic treatment experiment, clearly separating simulation from observed business outcomes.</p></section><section id="demo" class="lesson-section"><h2>Final demo checklist</h2><label class="check"><input type="checkbox" data-complete="p2-v2-demo-0"><span>Import a reproducible dataset sample and reconcile valid/cancelled/rejected records.</span></label><label class="check"><input type="checkbox" data-complete="p2-v2-demo-1"><span>Show cutoff-safe RFM values and evidence for one customer segment.</span></label><label class="check"><input type="checkbox" data-complete="p2-v2-demo-2"><span>Generate a grounded draft and reject an invented product claim.</span></label><label class="check"><input type="checkbox" data-complete="p2-v2-demo-3"><span>Block a synthetic opt-out and a prompt-injection attempt.</span></label><label class="check"><input type="checkbox" data-complete="p2-v2-demo-4"><span>Approve an exact draft, then demonstrate that a changed destination invalidates approval.</span></label><label class="check"><input type="checkbox" data-complete="p2-v2-demo-5"><span>Restart the worker and replay an event without duplicate sandbox dispatch.</span></label><label class="check"><input type="checkbox" data-complete="p2-v2-demo-6"><span>Inspect a full trace, review-time metrics, and the 150-scenario evaluation.</span></label><label class="check"><input type="checkbox" data-complete="p2-v2-demo-7"><span>Demonstrate rollback and explain why offline purchases do not establish campaign uplift.</span></label></section><section id="portfolio" class="lesson-section"><h2>Portfolio / README guidance</h2><pre><code>project-2/
+  src/{api,agents,tools,workflows,retrieval}/
+  data/{manifests,fixtures}/
+  evals/  tests/  security/  experiments/
+  monitoring/  infra/
+  docker-compose.yml
+  Makefile
+  README.md  architecture.md  evaluation_report.md
+  SECURITY.md</code></pre><p>Your README should open with the business problem, a diagram, the dataset and its limitations, one reproducible command, measured results, and a short demo. Include failed experiments, hardware/cost assumptions, threat boundaries, and an honest limitations section. Do not claim production scale or business uplift you did not measure.</p><p>Submit a 10–15 page report covering problem, requirements, data, architecture, agents/tools, evaluation, experiments, security, reliability, observability, performance, limitations, and future work.</p><h3>Grading rubric</h3><p>Evaluation/evidence 25%; system/data correctness 20%; security 15%; reliability 15%; observability/performance 10%; reproducibility/report/defense 15%. No pass without automated evaluation, reproducibility, scoped tools, failure tests, and observability.</p><label class="check"><input type="checkbox" data-complete="project-2-v2"><span>Complete project, report, and technical defense</span></label></section></div></main><footer><span>A/SE · Advanced AI Systems Engineering</span><a href="/syllabus/">Course standards &amp; source</a><span>Independent course · Local-first learning</span></footer></div><div id="save-status" class="sr-only" aria-live="polite"></div><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3d8d04f0d0115a7',t:'MTc4OTgyMzI0OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>

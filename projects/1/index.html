@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Evidence-First Deep Research Platform — Advanced AI Systems Engineering. Eight weeks of evaluation-first systems work, advanced labs, research and guided capstones."><title>Evidence-First Deep Research Platform · A/SE</title><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script><script src="/interactive.js" defer></script><link rel="stylesheet" href="/interactive.css"><link rel="stylesheet" href="/journey.css"><script src="/journey.js" defer></script><link rel="stylesheet" href="/course.css"><script src="/course.js" defer></script><link rel="stylesheet" href="/reader-diagrams.css"><script src="/diagram-viewer.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><aside class="sidebar" id="course-nav"><a class="brand" href="/"><span class="brand-mark">A/SE</span><span>ADVANCED AI<br>SYSTEMS ENGINEERING</span></a><div class="side-label">Course</div><a class="side-link " href="/">Overview</a><a class="side-link " href="/curriculum/">Curriculum</a><div class="side-label">Weeks</div><a class="week-nav " href="/weeks/1/"><span>01</span><span>Models &amp; evaluation</span><i data-week-dot="1"></i></a><a class="week-nav " href="/weeks/2/"><span>02</span><span>Retrieval &amp; context</span><i data-week-dot="2"></i></a><a class="week-nav " href="/weeks/3/"><span>03</span><span>Agents &amp; MCP</span><i data-week-dot="3"></i></a><a class="week-nav " href="/weeks/4/"><span>04</span><span>Planning &amp; multi-agent</span><i data-week-dot="4"></i></a><a class="week-nav " href="/weeks/5/"><span>05</span><span>Reliability &amp; security</span><i data-week-dot="5"></i></a><a class="week-nav " href="/weeks/6/"><span>06</span><span>Adaptation &amp; inference</span><i data-week-dot="6"></i></a><a class="week-nav " href="/weeks/7/"><span>07</span><span>Production &amp; observability</span><i data-week-dot="7"></i></a><a class="week-nav " href="/weeks/8/"><span>08</span><span>Systems defense</span><i data-week-dot="8"></i></a><div class="side-label">Projects</div><a class="side-link active" href="/projects/1/">P1 · Evidence-first research</a><a class="side-link " href="/projects/2/">P2 · Customer intelligence</a><div class="side-label">Study tools</div><a class="side-link" href="/labs/">Labs &amp; assessments</a><a class="side-link" href="/resources/">Reading room</a><a class="side-link" href="/progress/">Your progress</a><div class="side-progress"><span class="eyebrow">YOUR COURSE PROGRESS</span><strong data-progress-label>0% complete</strong><progress data-progress value="0" max="100" aria-label="Course completion"></progress><small>Saved on this browser</small></div></aside><div class="surface"><header class="topbar"><button class="menu" aria-controls="course-nav" aria-expanded="false">Menu</button><span class="eyebrow">Advanced AI Systems Engineering</span><nav aria-label="Primary"><a href="/resources/">Resources</a><a href="/progress/">Progress <span data-small-progress>0%</span></a></nav></header><main id="main" class="inner"><div class="page-content"><div class="page-heading"><div class="eyebrow">GUIDED PROJECT 01 / WEEKS 01—04 · CORE</div><h1>Evidence-First Deep Research Platform</h1><p class="lead">Build a reproducible system, measure alternatives, and defend the release.</p></div><section id="dependencies" class="lesson-section"><h2>Build prerequisites in order</h2><p>Each milestone starts from the previous artifact. Complete the linked teaching before implementing and defending the corresponding phase.</p><a class="resource-link" href="/lessons/1-7/"><span>Week 1 · Evaluation harness, source schema, frozen cases<small>Starting artifact and validation are specified in the guided lab and project phase below.</small></span><span aria-hidden="true">↗</span></a><a class="resource-link" href="/lessons/2-7/"><span>Week 2 · Six retrieval configurations and evidence interfaces<small>Starting artifact and validation are specified in the guided lab and project phase below.</small></span><span aria-hidden="true">↗</span></a><a class="resource-link" href="/lessons/3-7/"><span>Week 3 · Scoped MCP, bounded runtime, basic service and traces<small>Starting artifact and validation are specified in the guided lab and project phase below.</small></span><span aria-hidden="true">↗</span></a><a class="resource-link" href="/lessons/4-6/"><span>Week 4 · Three architecture comparisons, verification and defense<small>Starting artifact and validation are specified in the guided lab and project phase below.</small></span><span aria-hidden="true">↗</span></a><div class="note"><strong>Required comparison contract.</strong> Retrieval has six configurations across four families: BM25-only, vector-only, hybrid without reranking, hybrid plus reranking, vectorless document-tree navigation, and long-context. Adaptation has six conditions: zero-shot, few-shot, advanced prompting, RAG, LoRA, and LoRA plus RAG. Freeze evaluation and budgets; larger sweeps are extensions, but these conditions remain required.</div></section><section id="problem" class="lesson-section"><h2>Business problem</h2><p>A technical research team needs reports that identify supporting and contradictory evidence across documents, with traceable citations and an honest account of missing information.</p></section><section id="value" class="lesson-section"><h2>Business value</h2><p>Reduce evidence-finding and verification effort without replacing source judgment with fluent unsupported prose. Measure claim support and reviewer corrections.</p></section><section id="dataset" class="lesson-section"><h2>Dataset</h2><p><strong>QASPER</strong>: 5,049 information-seeking questions over 1,585 NLP papers, with answers and supporting evidence. The dataset includes paper IDs, titles, abstracts, section text, questions, answers, and evidence annotations. Use a source-separated subset for feasible local runs; add multi-source and adversarial cases because the base task is primarily paper-grounded QA.</p><a class="resource-link curated" href="https://huggingface.co/datasets/allenai/qasper"><span><span class="tier core">CORE</span> <span class="resource-type">Dataset · 20 min</span><strong>QASPER dataset files &amp; data card</strong><small>Structured full text and evidence labels support all four retrieval baselines.</small></span><span aria-hidden="true">↗</span></a><a class="resource-link curated" href="/papers/qasper/" data-reading-return=""><span><span class="tier core">CORE</span> <span class="resource-type">Research paper · 30 min</span><strong>QASPER dataset paper</strong><small>Understand annotation and task limitations.</small></span><span aria-hidden="true">Read</span></a></section><section id="objectives" class="lesson-section"><h2>Learning objectives</h2><ul><li>Compare four retrieval families on identical evidence.</li><li>Build scoped tools and a bounded research runtime.</li><li>Separate verification from report generation.</li><li>Defend architecture with evaluation and failure evidence.</li></ul></section><section id="architecture" class="lesson-section"><h2>Architecture</h2><p>Ingestion → normalized corpus → measured retrieval → scoped MCP → bounded research → evidence graph → independent verification → cited report.</p></section><section id="diagram" class="lesson-section"><h2>System diagram</h2><figure class="diagram" data-diagram="project1"><figcaption><span class="eyebrow">Interactive diagram</span><h3>Project 1 · Evidence-first research</h3></figcaption><div class="diagram-toolbar"><button class="button" type="button" data-expand-diagram="">Expand diagram</button><button class="button" type="button" data-zoom-out="" aria-label="Zoom out">−</button><output data-diagram-scale="" aria-live="polite">100%</output><button class="button" type="button" data-zoom-in="" aria-label="Zoom in">+</button><button class="button" type="button" data-zoom-reset="">Reset view</button></div><div class="diagram-host"><div class="diagram-scroll" tabindex="0" role="region" aria-label="Project 1 · Evidence-first research. Scroll within the diagram when zoomed."><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0.00 0.00 439.00 591.00" data-natural-width="439.0" style="min-width:439.0px;max-width:482.90000000000003px" role="group" aria-label="Project 1 · Evidence-first research">
+<g id="project1-0-graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 572.56)">
+<!-- n0 -->
+<g id="project1-0-node-0" class="node" data-node="0" tabindex="0" role="button" aria-label="Inspect Research planner" aria-pressed="false">
+<title>n0</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="303.99,-554.56 135.99,-554.56 135.99,-512.8 303.99,-512.8 303.99,-554.56"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="219.99" y="-528.28" font-family="Arial" font-size="18.00">Research planner</text>
+</g>
+<!-- n1 -->
+<g id="project1-0-node-1" class="node" data-node="1" tabindex="0" role="button" aria-label="Inspect Search + RAG" aria-pressed="false">
+<title>n1</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="227.23,-452 84.75,-452 84.75,-410.24 227.23,-410.24 227.23,-452"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="155.99" y="-425.72" font-family="Arial" font-size="18.00">Search + RAG</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="project1-0-edge-0" class="edge">
+<title>n0-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M197.98,-512.23C186.54,-501.6 174.92,-490.8 174.92,-490.8 174.92,-490.8 170.31,-476.51 165.64,-462.03"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="168.34,-461.27 163.21,-454.52 163.01,-462.99 168.34,-461.27"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="216.96" y="-478.2" font-family="Arial" font-size="14.00" fill="#43516a">bounded task</text>
+</g>
+<!-- n2 -->
+<g id="project1-0-node-2" class="node" data-node="2" tabindex="0" role="button" aria-label="Inspect MCP + evidence" aria-pressed="false">
+<title>n2</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="235.23,-349.44 76.75,-349.44 76.75,-307.68 235.23,-307.68 235.23,-349.44"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="155.99" y="-323.16" font-family="Arial" font-size="18.00">MCP + evidence</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="project1-0-edge-1" class="edge">
+<title>n1-&gt;n2</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M155.99,-409.77C155.99,-395.32 155.99,-375.69 155.99,-359.46"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="158.79,-359.85 155.99,-351.85 153.19,-359.85 158.79,-359.85"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="195.67" y="-375.64" font-family="Arial" font-size="14.00" fill="#43516a">retrieved IDs</text>
+</g>
+<!-- n3 -->
+<g id="project1-0-node-3" class="node" data-node="3" tabindex="0" role="button" aria-label="Inspect Research + verify" aria-pressed="false">
+<title>n3</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="306.23,-246.88 139.75,-246.88 139.75,-205.12 306.23,-205.12 306.23,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="222.99" y="-220.6" font-family="Arial" font-size="18.00">Research + verify</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="project1-0-edge-2" class="edge">
+<title>n2-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M154.6,-307.11C153.87,-296.48 153.13,-285.68 153.13,-285.68 153.13,-285.68 153.13,-268.88 153.13,-268.88 153.13,-268.88 165.96,-261.19 180.62,-252.4"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="181.77,-254.98 187.19,-248.46 178.89,-250.17 181.77,-254.98"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="206.06" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">fetched evidence</text>
+</g>
+<!-- n3&#45;&gt;n0 -->
+<g id="project1-0-edge-4" class="edge">
+<title>n3-&gt;n0</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M242.52,-247.45C252.67,-258.08 262.99,-268.88 262.99,-268.88 262.99,-268.88 262.99,-490.8 262.99,-490.8 262.99,-490.8 256.22,-497.39 248.06,-505.34"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="246.17,-503.27 242.39,-510.86 250.08,-507.28 246.17,-503.27"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="333.03" y="-375.64" font-family="Arial" font-size="14.00" fill="#43516a">revise unresolved plan</text>
+</g>
+<!-- n4 -->
+<g id="project1-0-node-4" class="node" data-node="4" tabindex="0" role="button" aria-label="Inspect Cited report" aria-pressed="false">
+<title>n4</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="239.97,-144.32 120.01,-144.32 120.01,-102.56 239.97,-102.56 239.97,-144.32"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="179.99" y="-118.04" font-family="Arial" font-size="18.00">Cited report</text>
+</g>
+<!-- n3&#45;&gt;n4 -->
+<g id="project1-0-edge-3" class="edge">
+<title>n3-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M214.29,-204.65C208.05,-190.07 199.56,-170.2 192.58,-153.89"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="195.17,-152.82 189.45,-146.57 190.02,-155.03 195.17,-152.82"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="248.41" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">verified claims</text>
+</g>
+<!-- n5 -->
+<g id="project1-0-node-5" class="node" data-node="5" tabindex="0" role="button" aria-label="Inspect Evaluation" aria-pressed="false">
+<title>n5</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="109.98,-41.76 0,-41.76 0,0 109.98,0 109.98,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="54.99" y="-15.48" font-family="Arial" font-size="18.00">Evaluation</text>
+</g>
+<!-- n4&#45;&gt;n5 -->
+<g id="project1-0-edge-6" class="edge">
+<title>n4-&gt;n5</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M154.69,-102.09C135.46,-86.62 108.85,-65.21 87.95,-48.4"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="89.77,-46.27 81.78,-43.43 86.26,-50.63 89.77,-46.27"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="162.32" y="-67.96" font-family="Arial" font-size="14.00" fill="#43516a">score report</text>
+</g>
+<!-- n5&#45;&gt;n1 -->
+<g id="project1-0-edge-5" class="edge">
+<title>n5-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M49.53,-42.23C41.64,-71.61 27.99,-122.44 27.99,-122.44 27.99,-329.56 27.99,-329.56 27.99,-329.56 27.99,-329.56 84.38,-373.86 122.3,-403.65"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="120.52,-405.81 128.54,-408.55 123.98,-401.41 120.52,-405.81"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="67.68" y="-221.8" font-family="Arial" font-size="14.00" fill="#43516a">frozen cases</text>
+</g>
+</g>
+</svg></div></div><p>The verifier reports support status independently; the writer retains claim-level provenance.</p><div class="node-controls" aria-label="Inspect diagram components"></div><div class="diagram-detail" aria-live="polite">Select a component to inspect its role and a failure to test.</div><details class="diagram-description"><summary>Read the connections as text</summary><ul><li>Research planner passes to Search + RAG: bounded task.</li><li>Search + RAG passes to MCP + evidence: retrieved IDs.</li><li>MCP + evidence passes to Research + verify: fetched evidence.</li><li>Research + verify passes to Cited report: verified claims.</li><li>Research + verify passes to Research planner: revise unresolved plan.</li><li>Evaluation passes to Search + RAG: frozen cases.</li><li>Cited report passes to Evaluation: score report.</li></ul></details><dialog class="diagram-dialog" aria-label="Expanded diagram"><header><strong>Project 1 · Evidence-first research</strong><button class="button" type="button" data-close-diagram="">Close</button></header><div class="diagram-modal-body"></div></dialog></figure></section><section id="technology" class="lesson-section"><h2>Technology choices</h2><p>Python + FastAPI; SQLite/PostgreSQL for evidence and run state; BM25 plus a local vector index for the experimental baseline; document-tree JSON for navigation; a typed MCP server; a small model or existing model access; Docker Compose; OpenTelemetry. A vector database is optional until experiments justify it.</p></section><section id="prerequisites" class="lesson-section"><h2>Prerequisites</h2><p>Python, APIs, Git, Docker basics, basic retrieval, and the Week 1 evaluation harness.</p></section><section id="milestones" class="lesson-section"><h2>Milestones</h2><label class="check"><input type="checkbox" data-complete="p1-v2-milestone-0"><span>Week 1. Freeze 80–100 questions, source policy, baseline model benchmark, and evaluation contract.</span></label><label class="check"><input type="checkbox" data-complete="p1-v2-milestone-1"><span>Week 2. Ingest all four source types; complete hybrid retrieval, reranking, provenance, and retrieval ablation.</span></label><label class="check"><input type="checkbox" data-complete="p1-v2-milestone-2"><span>Week 3. Add a bounded planner/runtime and scoped MCP research tools; test malformed responses and unknown tool outcomes.</span></label><label class="check"><input type="checkbox" data-complete="p1-v2-milestone-3"><span>Week 4. Add evidence graph, independent verdicts, cited reporting, architecture comparison, and a five-minute demo.</span></label></section><section id="phases" class="lesson-section"><h2>Step-by-step build phases</h2><article class="build-phase"><span class="eyebrow">PHASE 01</span><h3>Freeze the research contract</h3><p>Create a 30-paper development corpus and a source-disjoint held-out sample. Build 80–100 questions across direct, multi-source, temporal, contradictory, ambiguous, absent-answer, and adversarial categories. Start with QASPER answer/evidence labels; label additions separately.</p><dl><dt>Produce</dt><dd>evals/cases.jsonl with question_id, paper_ids, question, evidence_ids, answer_type, category, and split.</dd><dt>Acceptance check</dt><dd>No source overlaps across splits; every case has an expected outcome or explicit unanswerability.</dd></dl></article><article class="build-phase"><span class="eyebrow">PHASE 02</span><h3>Normalize and index</h3><p>Parse QASPER full_text into source_id, section_id, paragraph_id, text, and provenance. Add a small public webpage/PDF/repository fixture set for adapter coverage. Build a content hash and extraction revision; reject parse failures with reasons.</p><dl><dt>Produce</dt><dd>sources.jsonl and a versioned manifest; fixtures for all four source types.</dd><dt>Acceptance check</dt><dd>Every returned passage can be traced to its original section/page and revision.</dd></dl></article><article class="build-phase"><span class="eyebrow">PHASE 03</span><h3>Run the RAG Architecture Challenge</h3><p>Implement BM25-only, vector-only, hybrid, hybrid plus reranking, vectorless document-tree navigation, and long-context baselines. Freeze generator and query budget. BM25-only is a required baseline. Include an oracle-context experiment only as a separately labeled diagnostic.</p><dl><dt>Produce</dt><dd>results/retrieval-ablation.csv and per-query run records.</dd><dt>Acceptance check</dt><dd>Compare recall, correctness, citations, context precision, latency, tokens, index size/build time, update complexity, and cost.</dd></dl></article><article class="build-phase"><span class="eyebrow">PHASE 04</span><h3>Build typed research tools</h3><p>Expose search_documents(query, scope), fetch_section(source_id, section_id), get_source_metadata(source_id), and store_evidence(claim_id, evidence_refs). Validate schemas and access scopes. Implement bounded planning with explicit evidence requirements.</p><dl><dt>Produce</dt><dd>mcp/server.py, tool contracts, runtime state, and test fixtures.</dd><dt>Acceptance check</dt><dd>Malformed arguments/results and unauthorized source access fail safely; repeated writes reuse effect keys.</dd></dl></article><article class="build-phase"><span class="eyebrow">PHASE 05</span><h3>Separate verification from writing</h3><p>Create Claim records with supports/contradicts edges. The verifier returns SUPPORTED, PARTIAL, CONTRADICTED, or INSUFFICIENT; the writer receives structured verdicts and cites material claims. Compare one agent to planner/researcher/verifier under equal budgets.</p><dl><dt>Produce</dt><dd>claim graph, cited report, and architecture experiment.</dd><dt>Acceptance check</dt><dd>No invented references; conflicts and gaps remain visible. Report unsupported-claim rate and citation completeness.</dd></dl></article><article class="build-phase"><span class="eyebrow">PHASE 06</span><h3>Instrument, break, and release</h3><p>Trace ingestion, retrieval, planning, tools, verification, and writing. Inject missing source, malicious text, failed MCP, timeout, and exhausted budget. Package the system locally and run it from a clean checkout.</p><dl><dt>Produce</dt><dd>Compose deployment, evaluation report, threat model, failure matrix, and five-minute demo.</dd><dt>Acceptance check</dt><dd>One documented command runs the fixture research flow; failures stop or degrade with honest evidence status.</dd></dl></article><div class="table-wrap"><table><thead><tr><th>Architecture</th><th>Required implementation</th><th>Controlled comparison</th></tr></thead><tbody><tr><td>Required lexical baseline</td><td>BM25-only</td><td>Same corpus, scope and context budget</td></tr><tr><td>Required hybrid ablation</td><td>BM25 + dense + fusion, without reranking</td><td>Isolate the effect of reranking</td></tr><tr><td>A · Chunked vector RAG</td><td>Fixed chunks, embeddings, nearest-neighbor retrieval</td><td>Freeze chunk policy and document IDs</td></tr><tr><td>B · Hybrid</td><td>BM25 + vector + rank fusion + reranker</td><td>Same corpus and generator; log candidate recall</td></tr><tr><td>C · Document navigation</td><td>Metadata/lexical document shortlist + section tree + late page selection; optional bounded LLM navigation</td><td>No vector index for this baseline; count navigation calls and catalog cost</td></tr><tr><td>D · Long context</td><td>Document set selected by a deployable, non-oracle policy within the declared context limit</td><td>Report overflow explicitly; do not silently truncate</td></tr></tbody></table></div><ol><li>Use a fixed QASPER subset plus explicitly labeled multi-source/adversarial additions; split by paper before tuning.</li><li>Normalize IDs, section names, paragraphs, revisions, and evidence offsets. Preserve whole-document text.</li><li>Implement a common retrieve(query, scope, budget) contract returning evidence IDs, text, scores, cost, and timing.</li><li>Build the four-family variants plus required BM25-only and hybrid-without-reranking baselines: six configurations total. Use one generator and answer schema.</li><li>Run paired held-out evaluations and oracle-context checks. Audit missing evidence and unsupported answers separately.</li><li>Measure index/storage/update complexity and warm/cold behavior. Choose the deployment for this workload using hard constraints and trade-offs.</li></ol><p>PageIndex is a comparable navigation implementation. RAPTOR and GraphRAG are optional contrasts; neither name guarantees an embedding-free or chunk-free system.</p></section><section id="evaluation" class="lesson-section"><h2>Evaluation methodology</h2><p>Retain the 80–100 question contract. Freeze splits and use the same generator across retrieval variants. Score evidence recall, answer correctness, citation precision/completeness, unsupported claims, tool selection, planner success, latency, and tokens. Calibrate any judge against human labels and preserve raw per-case evidence.</p><figure class="diagram" data-diagram="evaluation"><figcaption><span class="eyebrow">Interactive diagram</span><h3>Evaluation pipeline</h3></figcaption><div class="diagram-toolbar"><button class="button" type="button" data-expand-diagram="">Expand diagram</button><button class="button" type="button" data-zoom-out="" aria-label="Zoom out">−</button><output data-diagram-scale="" aria-live="polite">100%</output><button class="button" type="button" data-zoom-in="" aria-label="Zoom in">+</button><button class="button" type="button" data-zoom-reset="">Reset view</button></div><div class="diagram-host"><div class="diagram-scroll" tabindex="0" role="region" aria-label="Evaluation pipeline. Scroll within the diagram when zoomed."><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0.00 0.00 337.00 385.00" data-natural-width="337.0" style="min-width:337.0px;max-width:370.70000000000005px" role="group" aria-label="Evaluation pipeline">
+<g id="evaluation-1-graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 367.44)">
+<!-- n0 -->
+<g id="evaluation-1-node-0" class="node" data-node="0" tabindex="0" role="button" aria-label="Inspect Dataset" aria-pressed="false">
+<title>n0</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="184.47,-349.44 96.52,-349.44 96.52,-307.68 184.47,-307.68 184.47,-349.44"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="140.5" y="-323.16" font-family="Arial" font-size="18.00">Dataset</text>
+</g>
+<!-- n1 -->
+<g id="evaluation-1-node-1" class="node" data-node="1" tabindex="0" role="button" aria-label="Inspect Candidate A" aria-pressed="false">
+<title>n1</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="124.99,-246.88 0,-246.88 0,-205.12 124.99,-205.12 124.99,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="62.5" y="-220.6" font-family="Arial" font-size="18.00">Candidate A</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="evaluation-1-edge-0" class="edge">
+<title>n0-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M117.21,-307.11C105.1,-296.48 92.8,-285.68 92.8,-285.68 92.8,-285.68 85.14,-270.84 77.52,-256.09"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="80.16,-255.09 74,-249.27 75.18,-257.66 80.16,-255.09"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="130.15" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">same cases</text>
+</g>
+<!-- n2 -->
+<g id="evaluation-1-node-2" class="node" data-node="2" tabindex="0" role="button" aria-label="Inspect Candidate B" aria-pressed="false">
+<title>n2</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="281.99,-246.88 157,-246.88 157,-205.12 281.99,-205.12 281.99,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="219.5" y="-220.6" font-family="Arial" font-size="18.00">Candidate B</text>
+</g>
+<!-- n0&#45;&gt;n2 -->
+<g id="evaluation-1-edge-1" class="edge">
+<title>n0-&gt;n2</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M156.48,-307.21C168.26,-292.22 184.43,-271.64 197.43,-255.08"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="199.58,-256.89 202.32,-248.87 195.17,-253.43 199.58,-256.89"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="222.07" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">same cases</text>
+</g>
+<!-- n3 -->
+<g id="evaluation-1-node-3" class="node" data-node="3" tabindex="0" role="button" aria-label="Inspect Evaluators" aria-pressed="false">
+<title>n3</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="195.98,-144.32 85.01,-144.32 85.01,-102.56 195.98,-102.56 195.98,-144.32"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="140.5" y="-118.04" font-family="Arial" font-size="18.00">Evaluators</text>
+</g>
+<!-- n1&#45;&gt;n3 -->
+<g id="evaluation-1-edge-2" class="edge">
+<title>n1-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M63.71,-204.48C64.71,-187.55 65.96,-166.32 65.96,-166.32 65.96,-166.32 79.9,-158.49 95.72,-149.6"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="96.79,-152.21 102.39,-145.85 94.04,-147.33 96.79,-152.21"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="121.23" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">candidate outputs</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="evaluation-1-edge-3" class="edge">
+<title>n2-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M205.85,-204.48C194.61,-187.55 180.5,-166.32 180.5,-166.32 180.5,-166.32 174.2,-159.73 166.6,-151.78"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="168.94,-150.16 161.39,-146.31 164.89,-154.03 168.94,-150.16"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="246.22" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">candidate outputs</text>
+</g>
+<!-- n4 -->
+<g id="evaluation-1-node-4" class="node" data-node="4" tabindex="0" role="button" aria-label="Inspect Release gate" aria-pressed="false">
+<title>n4</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="206.49,-41.76 74.5,-41.76 74.5,0 206.49,0 206.49,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="140.5" y="-15.48" font-family="Arial" font-size="18.00">Release gate</text>
+</g>
+<!-- n3&#45;&gt;n4 -->
+<g id="evaluation-1-edge-4" class="edge">
+<title>n3-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M140.5,-102.09C140.5,-87.64 140.5,-68.01 140.5,-51.78"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="143.3,-52.17 140.5,-44.17 137.7,-52.17 143.3,-52.17"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="194.18" y="-67.96" font-family="Arial" font-size="14.00" fill="#43516a">scores and slices</text>
+</g>
+</g>
+</svg></div></div><p>Freeze the task distribution before comparing candidates. Keep test evidence separate from tuning.</p><div class="node-controls" aria-label="Inspect diagram components"></div><div class="diagram-detail" aria-live="polite">Select a component to inspect its role and a failure to test.</div><details class="diagram-description"><summary>Read the connections as text</summary><ul><li>Dataset passes to Candidate A: same cases.</li><li>Dataset passes to Candidate B: same cases.</li><li>Candidate A passes to Evaluators: candidate outputs.</li><li>Candidate B passes to Evaluators: candidate outputs.</li><li>Evaluators passes to Release gate: scores and slices.</li></ul></details><dialog class="diagram-dialog" aria-label="Expanded diagram"><header><strong>Evaluation pipeline</strong><button class="button" type="button" data-close-diagram="">Close</button></header><div class="diagram-modal-body"></div></dialog></figure></section><section id="metrics" class="lesson-section"><h2>Metrics</h2><ul><li>Recall@K and oracle-context diagnostic</li><li>Factual correctness, citation precision/completeness, unsupported-claim rate</li><li>Tool/argument accuracy and planner success</li><li>p50/p95 latency, tokens, cost/request, index build/update time and bytes</li><li>Equal-budget architecture comparison and reviewer correction rate</li></ul></section><section id="failure" class="lesson-section"><h2>Failure scenarios</h2><p>Inject missing PDFs, extraction corruption, unreachable sources, contradictory dates, exhausted tokens, invalid tool responses, unsupported claims, and a failed verifier. Preserve partial evidence and do not label incomplete work as verified. Re-run the same question after recovery and explain state handling.</p></section><section id="security" class="lesson-section"><h2>Security requirements</h2><p>Separate trusted instructions from source content. Scope tool capabilities, restrict network destinations, prevent path traversal and SSRF, redact secrets, and require approval for any external publication. Include poisoned documents, malicious tool results, and unsupported citations in security tests.</p><figure class="diagram" data-diagram="security"><figcaption><span class="eyebrow">Interactive diagram</span><h3>Security boundaries</h3></figcaption><div class="diagram-toolbar"><button class="button" type="button" data-expand-diagram="">Expand diagram</button><button class="button" type="button" data-zoom-out="" aria-label="Zoom out">−</button><output data-diagram-scale="" aria-live="polite">100%</output><button class="button" type="button" data-zoom-in="" aria-label="Zoom in">+</button><button class="button" type="button" data-zoom-reset="">Reset view</button></div><div class="diagram-host"><div class="diagram-scroll" tabindex="0" role="region" aria-label="Security boundaries. Scroll within the diagram when zoomed."><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0.00 0.00 380.00 522.00" data-natural-width="380.0" style="min-width:380.0px;max-width:418.00000000000006px" role="group" aria-label="Security boundaries">
+<g id="security-2-graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 503.6)">
+<!-- n0 -->
+<g id="security-2-node-0" class="node" data-node="0" tabindex="0" role="button" aria-label="Inspect Untrusted inputs" aria-pressed="false">
+<title>n0</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="249.25,-485.6 92.25,-485.6 92.25,-443.84 249.25,-443.84 249.25,-485.6"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="170.75" y="-459.32" font-family="Arial" font-size="18.00">Untrusted inputs</text>
+</g>
+<!-- n1 -->
+<g id="security-2-node-1" class="node" data-node="1" tabindex="0" role="button" aria-label="Inspect Isolated context" aria-pressed="false">
+<title>n1</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="246.75,-383.04 94.75,-383.04 94.75,-341.28 246.75,-341.28 246.75,-383.04"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="170.75" y="-356.76" font-family="Arial" font-size="18.00">Isolated context</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="security-2-edge-0" class="edge">
+<title>n0-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M170.75,-443.37C170.75,-428.92 170.75,-409.29 170.75,-393.06"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="173.55,-393.45 170.75,-385.45 167.95,-393.45 173.55,-393.45"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="209.66" y="-409.24" font-family="Arial" font-size="14.00" fill="#43516a">treat as data</text>
+</g>
+<!-- n2 -->
+<g id="security-2-node-2" class="node" data-node="2" tabindex="0" role="button" aria-label="Inspect Proposed action" aria-pressed="false">
+<title>n2</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="248.75,-280.48 92.75,-280.48 92.75,-238.72 248.75,-238.72 248.75,-280.48"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="170.75" y="-254.2" font-family="Arial" font-size="18.00">Proposed action</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="security-2-edge-1" class="edge">
+<title>n1-&gt;n2</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M170.75,-340.81C170.75,-326.36 170.75,-306.73 170.75,-290.5"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="173.55,-290.89 170.75,-282.89 167.95,-290.89 173.55,-290.89"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="210.83" y="-306.68" font-family="Arial" font-size="14.00" fill="#43516a">propose only</text>
+</g>
+<!-- n3 -->
+<g id="security-2-node-3" class="node" data-node="3" tabindex="0" role="button" aria-label="Inspect Authorization" aria-pressed="false">
+<title>n3</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="236.24,-161.12 105.26,-161.12 105.26,-119.36 236.24,-119.36 236.24,-161.12"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="170.75" y="-134.84" font-family="Arial" font-size="18.00">Authorization</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="security-2-edge-2" class="edge">
+<title>n2-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M170.75,-238.16C170.75,-219.65 170.75,-192.14 170.75,-171.16"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="173.55,-171.42 170.75,-163.42 167.95,-171.42 173.55,-171.42"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="232.63" y="-204.12" font-family="Arial" font-size="14.00" fill="#43516a">validate identity and</text>
+<text xml:space="preserve" text-anchor="middle" x="232.63" y="-187.32" font-family="Arial" font-size="14.00" fill="#43516a">scope</text>
+</g>
+<!-- n4 -->
+<g id="security-2-node-4" class="node" data-node="4" tabindex="0" role="button" aria-label="Inspect Approval + effect" aria-pressed="false">
+<title>n4</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="161.5,-41.76 0,-41.76 0,0 161.5,0 161.5,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="80.75" y="-15.48" font-family="Arial" font-size="18.00">Approval + effect</text>
+</g>
+<!-- n3&#45;&gt;n4 -->
+<g id="security-2-edge-3" class="edge">
+<title>n3-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M131.82,-118.79C111.58,-108.16 91.02,-97.36 91.02,-97.36 91.02,-97.36 87.68,-72.85 84.82,-51.76"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="87.62,-51.61 83.77,-44.06 82.07,-52.36 87.62,-51.61"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="156.38" y="-84.76" font-family="Arial" font-size="14.00" fill="#43516a">permitted; approval if</text>
+<text xml:space="preserve" text-anchor="middle" x="156.38" y="-67.96" font-family="Arial" font-size="14.00" fill="#43516a">needed</text>
+</g>
+<!-- n5 -->
+<g id="security-2-node-5" class="node" data-node="5" tabindex="0" role="button" aria-label="Inspect Reject + audit" aria-pressed="false">
+<title>n5</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="329.99,-41.76 193.51,-41.76 193.51,0 329.99,0 329.99,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="261.75" y="-15.48" font-family="Arial" font-size="18.00">Reject + audit</text>
+</g>
+<!-- n3&#45;&gt;n5 -->
+<g id="security-2-edge-4" class="edge">
+<title>n3-&gt;n5</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M197.61,-118.79C211.57,-108.16 225.75,-97.36 225.75,-97.36 225.75,-97.36 237.76,-72.18 247.91,-50.9"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="250.34,-52.31 251.26,-43.88 245.28,-49.9 250.34,-52.31"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="292.57" y="-76.36" font-family="Arial" font-size="14.00" fill="#43516a">denied or invalid</text>
+</g>
+</g>
+</svg></div></div><p>Untrusted content never grants permissions. Enforce access before the side effect.</p><div class="node-controls" aria-label="Inspect diagram components"></div><div class="diagram-detail" aria-live="polite">Select a component to inspect its role and a failure to test.</div><details class="diagram-description"><summary>Read the connections as text</summary><ul><li>Untrusted inputs passes to Isolated context: treat as data.</li><li>Isolated context passes to Proposed action: propose only.</li><li>Proposed action passes to Authorization: validate identity and scope.</li><li>Authorization passes to Approval + effect: permitted; approval if needed.</li><li>Authorization passes to Reject + audit: denied or invalid.</li></ul></details><dialog class="diagram-dialog" aria-label="Expanded diagram"><header><strong>Security boundaries</strong><button class="button" type="button" data-close-diagram="">Close</button></header><div class="diagram-modal-body"></div></dialog></figure></section><section id="observability" class="lesson-section"><h2>Observability</h2><p>Create one trace per research question with spans for planning, retrieval, reranking, each MCP call, verification, and report assembly. Record model/prompt/corpus revisions, token usage, latency, retries, evidence IDs, and support labels. Do not log credentials or private source text by default.</p><figure class="diagram" data-diagram="telemetry"><figcaption><span class="eyebrow">Interactive diagram</span><h3>OpenTelemetry across a request</h3></figcaption><div class="diagram-toolbar"><button class="button" type="button" data-expand-diagram="">Expand diagram</button><button class="button" type="button" data-zoom-out="" aria-label="Zoom out">−</button><output data-diagram-scale="" aria-live="polite">100%</output><button class="button" type="button" data-zoom-in="" aria-label="Zoom in">+</button><button class="button" type="button" data-zoom-reset="">Reset view</button></div><div class="diagram-host"><div class="diagram-scroll" tabindex="0" role="region" aria-label="OpenTelemetry across a request. Scroll within the diagram when zoomed."><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0.00 0.00 301.00 488.00" data-natural-width="301.0" style="min-width:301.0px;max-width:331.1px" role="group" aria-label="OpenTelemetry across a request">
+<g id="telemetry-3-graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 470)">
+<!-- n0 -->
+<g id="telemetry-3-node-0" class="node" data-node="0" tabindex="0" role="button" aria-label="Inspect API span" aria-pressed="false">
+<title>n0</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="180.97,-452 82.01,-452 82.01,-410.24 180.97,-410.24 180.97,-452"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="131.49" y="-425.72" font-family="Arial" font-size="18.00">API span</text>
+</g>
+<!-- n1 -->
+<g id="telemetry-3-node-1" class="node" data-node="1" tabindex="0" role="button" aria-label="Inspect Queue → worker" aria-pressed="false">
+<title>n1</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="210.98,-349.44 52,-349.44 52,-307.68 210.98,-307.68 210.98,-349.44"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="131.49" y="-323.16" font-family="Arial" font-size="18.00">Queue → worker</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="telemetry-3-edge-0" class="edge">
+<title>n0-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M131.49,-409.77C131.49,-395.32 131.49,-375.69 131.49,-359.46"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="134.29,-359.85 131.49,-351.85 128.69,-359.85 134.29,-359.85"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="187.53" y="-375.64" font-family="Arial" font-size="14.00" fill="#43516a">propagate context</text>
+</g>
+<!-- n2 -->
+<g id="telemetry-3-node-2" class="node" data-node="2" tabindex="0" role="button" aria-label="Inspect Model span" aria-pressed="false">
+<title>n2</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="118.98,-246.88 0,-246.88 0,-205.12 118.98,-205.12 118.98,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="59.49" y="-220.6" font-family="Arial" font-size="18.00">Model span</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="telemetry-3-edge-1" class="edge">
+<title>n1-&gt;n2</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M100.7,-307.11C84.69,-296.48 68.43,-285.68 68.43,-285.68 68.43,-285.68 66.29,-271.66 64.11,-257.33"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="66.88,-256.96 62.91,-249.47 61.35,-257.8 66.88,-256.96"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="113.96" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">child operation</text>
+</g>
+<!-- n3 -->
+<g id="telemetry-3-node-3" class="node" data-node="3" tabindex="0" role="button" aria-label="Inspect Tool span" aria-pressed="false">
+<title>n3</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="255.97,-246.88 151,-246.88 151,-205.12 255.97,-205.12 255.97,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="203.49" y="-220.6" font-family="Arial" font-size="18.00">Tool span</text>
+</g>
+<!-- n1&#45;&gt;n3 -->
+<g id="telemetry-3-edge-2" class="edge">
+<title>n1-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M147.11,-307.11C155.24,-296.48 163.49,-285.68 163.49,-285.68 163.49,-285.68 173.79,-270.56 183.94,-255.67"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="186.2,-257.34 188.39,-249.15 181.57,-254.18 186.2,-257.34"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="219.75" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">child operation</text>
+</g>
+<!-- n4 -->
+<g id="telemetry-3-node-4" class="node" data-node="4" tabindex="0" role="button" aria-label="Inspect Collector" aria-pressed="false">
+<title>n4</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="179.96,-144.32 83.02,-144.32 83.02,-102.56 179.96,-102.56 179.96,-144.32"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="131.49" y="-118.04" font-family="Arial" font-size="18.00">Collector</text>
+</g>
+<!-- n2&#45;&gt;n4 -->
+<g id="telemetry-3-edge-3" class="edge">
+<title>n2-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M67.13,-204.48C73.43,-187.55 81.33,-166.32 81.33,-166.32 81.33,-166.32 89.71,-159.33 99.61,-151.06"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="101.14,-153.43 105.49,-146.15 97.55,-149.13 101.14,-153.43"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="117.91" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">export span</text>
+</g>
+<!-- n3&#45;&gt;n4 -->
+<g id="telemetry-3-edge-4" class="edge">
+<title>n3-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M188.92,-204.65C178.18,-189.66 163.45,-169.08 151.6,-152.52"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="154.12,-151.23 147.18,-146.36 149.56,-154.49 154.12,-151.23"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="208.38" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">export span</text>
+</g>
+<!-- n5 -->
+<g id="telemetry-3-node-5" class="node" data-node="5" tabindex="0" role="button" aria-label="Inspect SLO dashboard" aria-pressed="false">
+<title>n5</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="207.49,-41.76 55.49,-41.76 55.49,0 207.49,0 207.49,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="131.49" y="-15.48" font-family="Arial" font-size="18.00">SLO dashboard</text>
+</g>
+<!-- n4&#45;&gt;n5 -->
+<g id="telemetry-3-edge-5" class="edge">
+<title>n4-&gt;n5</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M131.49,-102.09C131.49,-87.64 131.49,-68.01 131.49,-51.78"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="134.29,-52.17 131.49,-44.17 128.69,-52.17 134.29,-52.17"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="194.92" y="-67.96" font-family="Arial" font-size="14.00" fill="#43516a">aggregate indicators</text>
+</g>
+</g>
+</svg></div></div><p>Carry trace context through the queue. Observe model and tool calls without exposing secrets.</p><div class="node-controls" aria-label="Inspect diagram components"></div><div class="diagram-detail" aria-live="polite">Select a component to inspect its role and a failure to test.</div><details class="diagram-description"><summary>Read the connections as text</summary><ul><li>API span passes to Queue → worker: propagate context.</li><li>Queue → worker passes to Model span: child operation.</li><li>Queue → worker passes to Tool span: child operation.</li><li>Model span passes to Collector: export span.</li><li>Tool span passes to Collector: export span.</li><li>Collector passes to SLO dashboard: aggregate indicators.</li></ul></details><dialog class="diagram-dialog" aria-label="Expanded diagram"><header><strong>OpenTelemetry across a request</strong><button class="button" type="button" data-close-diagram="">Close</button></header><div class="diagram-modal-body"></div></dialog></figure></section><section id="workflow" class="lesson-section"><h2>Workflow automation</h2><p>Accept a research job, persist state, run bounded stages, checkpoint evidence, and return a cited report or explicit incomplete status. Retries reuse source and effect identity.</p><figure class="diagram" data-diagram="durable"><figcaption><span class="eyebrow">Interactive diagram</span><h3>Durable workflow</h3></figcaption><div class="diagram-toolbar"><button class="button" type="button" data-expand-diagram="">Expand diagram</button><button class="button" type="button" data-zoom-out="" aria-label="Zoom out">−</button><output data-diagram-scale="" aria-live="polite">100%</output><button class="button" type="button" data-zoom-in="" aria-label="Zoom in">+</button><button class="button" type="button" data-zoom-reset="">Reset view</button></div><div class="diagram-host"><div class="diagram-scroll" tabindex="0" role="region" aria-label="Durable workflow. Scroll within the diagram when zoomed."><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0.00 0.00 543.00 488.00" data-natural-width="543.0" style="min-width:543.0px;max-width:597.3000000000001px" role="group" aria-label="Durable workflow">
+<g id="durable-4-graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 470)">
+<!-- n0 -->
+<g id="durable-4-node-0" class="node" data-node="0" tabindex="0" role="button" aria-label="Inspect Event + queue" aria-pressed="false">
+<title>n0</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="391.25,-452 248.74,-452 248.74,-410.24 391.25,-410.24 391.25,-452"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="320" y="-425.72" font-family="Arial" font-size="18.00">Event + queue</text>
+</g>
+<!-- n1 -->
+<g id="durable-4-node-1" class="node" data-node="1" tabindex="0" role="button" aria-label="Inspect Checkpoint" aria-pressed="false">
+<title>n1</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="377.98,-349.44 262.01,-349.44 262.01,-307.68 377.98,-307.68 377.98,-349.44"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="320" y="-323.16" font-family="Arial" font-size="18.00">Checkpoint</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="durable-4-edge-0" class="edge">
+<title>n0-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M320,-409.77C320,-395.32 320,-375.69 320,-359.46"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="322.8,-359.85 320,-351.85 317.2,-359.85 322.8,-359.85"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="383.81" y="-375.64" font-family="Arial" font-size="14.00" fill="#43516a">persist event identity</text>
+</g>
+<!-- n2 -->
+<g id="durable-4-node-2" class="node" data-node="2" tabindex="0" role="button" aria-label="Inspect Investigate" aria-pressed="false">
+<title>n2</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="306.48,-246.88 193.51,-246.88 193.51,-205.12 306.48,-205.12 306.48,-246.88"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="250" y="-220.6" font-family="Arial" font-size="18.00">Investigate</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="durable-4-edge-1" class="edge">
+<title>n1-&gt;n2</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M284.59,-307.11C266.19,-296.48 247.49,-285.68 247.49,-285.68 247.49,-285.68 247.49,-268.88 247.49,-268.88 247.49,-268.88 247.8,-263.78 248.2,-257.13"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="250.97,-257.57 248.66,-249.41 245.38,-257.23 250.97,-257.57"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="306.25" y="-273.08" font-family="Arial" font-size="14.00" fill="#43516a">resume checkpoint</text>
+</g>
+<!-- n3 -->
+<g id="durable-4-node-3" class="node" data-node="3" tabindex="0" role="button" aria-label="Inspect Human approval" aria-pressed="false">
+<title>n3</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="157.99,-144.32 0,-144.32 0,-102.56 157.99,-102.56 157.99,-144.32"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="79" y="-118.04" font-family="Arial" font-size="18.00">Human approval</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="durable-4-edge-2" class="edge">
+<title>n2-&gt;n3</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M193.19,-208.69C152.23,-196.93 104.14,-183.12 104.14,-183.12 104.14,-183.12 97.9,-168.56 91.64,-153.94"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="94.29,-153.02 88.57,-146.77 89.14,-155.23 94.29,-153.02"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="174.57" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">review proposed effect</text>
+</g>
+<!-- n5 -->
+<g id="durable-4-node-5" class="node" data-node="5" tabindex="0" role="button" aria-label="Inspect Recovery / DLQ" aria-pressed="false">
+<title>n5</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="404.98,-144.32 251.02,-144.32 251.02,-102.56 404.98,-102.56 404.98,-144.32"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="328" y="-118.04" font-family="Arial" font-size="18.00">Recovery / DLQ</text>
+</g>
+<!-- n2&#45;&gt;n5 -->
+<g id="durable-4-edge-4" class="edge">
+<title>n2-&gt;n5</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M251.29,-204.48C252.36,-187.55 253.7,-166.32 253.7,-166.32 253.7,-166.32 267.59,-158.49 283.36,-149.6"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="284.41,-152.22 290.01,-145.86 281.66,-147.34 284.41,-152.22"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="309.35" y="-170.52" font-family="Arial" font-size="14.00" fill="#43516a">failure or deadline</text>
+</g>
+<!-- n4 -->
+<g id="durable-4-node-4" class="node" data-node="4" tabindex="0" role="button" aria-label="Inspect Effect + audit" aria-pressed="false">
+<title>n4</title>
+<polygon fill="#ffffff" stroke="#a3afbf" stroke-width="1.3" points="144.74,-41.76 13.25,-41.76 13.25,0 144.74,0 144.74,-41.76"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="79" y="-15.48" font-family="Arial" font-size="18.00">Effect + audit</text>
+</g>
+<!-- n3&#45;&gt;n4 -->
+<g id="durable-4-edge-3" class="edge">
+<title>n3-&gt;n4</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M79,-102.09C79,-87.64 79,-68.01 79,-51.78"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="81.8,-52.17 79,-44.17 76.2,-52.17 81.8,-52.17"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="122.19" y="-67.96" font-family="Arial" font-size="14.00" fill="#43516a">valid approval</text>
+</g>
+<!-- n5&#45;&gt;n1 -->
+<g id="durable-4-edge-5" class="edge">
+<title>n5-&gt;n1</title>
+<path fill="none" stroke="#56657a" stroke-width="1.3" d="M348.02,-144.89C358.42,-155.52 369,-166.32 369,-166.32 369,-166.32 369,-285.68 369,-285.68 369,-285.68 360.97,-292.54 351.42,-300.7"></path>
+<polygon fill="#56657a" stroke="#56657a" stroke-width="1.3" points="349.68,-298.51 345.42,-305.83 353.32,-302.76 349.68,-298.51"></polygon>
+<text xml:space="preserve" text-anchor="middle" x="437.87" y="-221.8" font-family="Arial" font-size="14.00" fill="#43516a">reconcile then resume</text>
+</g>
+</g>
+</svg></div></div><p>Persist state and reconcile effects. At-least-once delivery requires application-level idempotency.</p><div class="node-controls" aria-label="Inspect diagram components"></div><div class="diagram-detail" aria-live="polite">Select a component to inspect its role and a failure to test.</div><details class="diagram-description"><summary>Read the connections as text</summary><ul><li>Event + queue passes to Checkpoint: persist event identity.</li><li>Checkpoint passes to Investigate: resume checkpoint.</li><li>Investigate passes to Human approval: review proposed effect.</li><li>Human approval passes to Effect + audit: valid approval.</li><li>Investigate passes to Recovery / DLQ: failure or deadline.</li><li>Recovery / DLQ passes to Checkpoint: reconcile then resume.</li></ul></details><dialog class="diagram-dialog" aria-label="Expanded diagram"><header><strong>Durable workflow</strong><button class="button" type="button" data-close-diagram="">Close</button></header><div class="diagram-modal-body"></div></dialog></figure></section><section id="deployment" class="lesson-section"><h2>Deployment</h2><p>Provide a local Compose stack for API, worker, MCP server, database, and telemetry. Add health checks and a seed fixture command. Keep secrets outside Git. A deterministic fixture run must work without paid APIs; actual model experiments must be identified separately and disclose hardware or provider cost. Version the release and demonstrate clean setup, restart, and rollback.</p><pre><code># Commands your project Makefile must implement
+make setup       # install pinned dependencies / validate configuration
+make seed        # load declared fixtures
+make test        # contracts and deterministic invariants
+make eval        # versioned evaluation; record run mode
+make up          # start local services
+make demo        # replay the documented scenario</code></pre></section><section id="references" class="lesson-section"><h2>Comparable projects</h2><article class="reference-study"><h3><a href="https://github.com/allenai/qasper-led-baseline">QASPER evidence baseline ↗</a></h3><dl><dt>What it does well</dt><dd>Separates answer and evidence scoring.</dd><dt>What to learn</dt><dd>Use source-grounded labels and component metrics.</dd><dt>What not to copy</dt><dd>Do not import old training dependencies or benchmark scores as your own.</dd><dt>Our extension to test</dt><dd>Add hybrid/document-navigation comparisons, provenance, and failure tests.</dd></dl></article><article class="reference-study"><h3><a href="https://github.com/VectifyAI/PageIndex">PageIndex ↗</a></h3><dl><dt>What it does well</dt><dd>Exposes a document-tree navigation alternative.</dd><dt>What to learn</dt><dd>Inspect how page ranges are selected and cited.</dd><dt>What not to copy</dt><dd>Do not generalize vendor benchmark claims or assume model calls are free.</dd><dt>Our extension to test</dt><dd>Compare navigation against all four families under identical workload constraints.</dd></dl></article><article class="reference-study"><h3><a href="https://github.com/langchain-ai/open_deep_research">Open Deep Research · archived reference ↗</a></h3><dl><dt>What it does well</dt><dd>Shows configurable planning, research, and report stages.</dd><dt>What to learn</dt><dd>Study scoped research and compression boundaries.</dd><dt>What not to copy</dt><dd>Do not require its paid search defaults or treat an archived stack as a maintained production dependency.</dd><dt>Our extension to test</dt><dd>Use local fixtures, explicit claim verdicts, equal-budget baselines, and adversarial gates.</dd></dl></article></section><section id="stretch" class="lesson-section"><h2>Stretch goals</h2><span class="tier deep">DEEP DIVE</span><p>Add graph retrieval, OCR/vision evidence, or a larger corpus only after the core four-family comparison. Measure update cost and source access boundaries.</p></section><section id="demo" class="lesson-section"><h2>Final demo checklist</h2><label class="check"><input type="checkbox" data-complete="p1-v2-demo-0"><span>Start from a clean local checkout and run the documented setup.</span></label><label class="check"><input type="checkbox" data-complete="p1-v2-demo-1"><span>Investigate one multi-source question and open its claim-to-source evidence.</span></label><label class="check"><input type="checkbox" data-complete="p1-v2-demo-2"><span>Show contradictory evidence and the verifier's support labels.</span></label><label class="check"><input type="checkbox" data-complete="p1-v2-demo-3"><span>Demonstrate an unanswerable case with no fabricated citations.</span></label><label class="check"><input type="checkbox" data-complete="p1-v2-demo-4"><span>Inject a tool failure and show bounded recovery in a trace.</span></label><label class="check"><input type="checkbox" data-complete="p1-v2-demo-5"><span>Compare single-agent and coordinated results under equal budgets.</span></label><label class="check"><input type="checkbox" data-complete="p1-v2-demo-6"><span>Finish within five minutes and state the largest remaining limitation.</span></label></section><section id="portfolio" class="lesson-section"><h2>Portfolio / README guidance</h2><pre><code>project-1/
+  src/{api,agents,tools,workflows,retrieval}/
+  data/{manifests,fixtures}/
+  evals/  tests/  security/  experiments/
+  monitoring/  infra/
+  docker-compose.yml
+  Makefile
+  README.md  architecture.md  evaluation_report.md
+  SECURITY.md</code></pre><p>Your README should open with the business problem, a diagram, the dataset and its limitations, one reproducible command, measured results, and a short demo. Include failed experiments, hardware/cost assumptions, threat boundaries, and an honest limitations section. Do not claim production scale or business uplift you did not measure.</p><p>Include the evaluation report, architecture memo, failure analysis, and five-minute demo.</p><h3>Grading rubric</h3><p>Evaluation/evidence 25%; system/data correctness 20%; security 15%; reliability 15%; observability/performance 10%; reproducibility/report/defense 15%. No pass without automated evaluation, reproducibility, scoped tools, failure tests, and observability.</p><label class="check"><input type="checkbox" data-complete="project-1-v2"><span>Complete project, report, and technical defense</span></label></section></div></main><footer><span>A/SE · Advanced AI Systems Engineering</span><a href="/syllabus/">Course standards &amp; source</a><span>Independent course · Local-first learning</span></footer></div><div id="save-status" class="sr-only" aria-live="polite"></div><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3d8d04eabff15a7',t:'MTc4OTgyMzI0OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>

@@ -1,3 +1,5 @@
 # Advanced AI Systems Engineering
 
-Course website source for the Advanced AI Systems Engineering program.
+Static export of https://ai-buildcamp.najamzfr.chatgpt.site
+
+This is a published-site export for Codespaces, not the original editable Site source.
