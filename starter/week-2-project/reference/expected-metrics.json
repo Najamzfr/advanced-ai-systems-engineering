@@ -1,0 +1,14 @@
+{
+  "week": 2,
+  "dataset": "smoke_fixture",
+  "minimum_cases": 200,
+  "required_metrics": [
+    "Recall@5",
+    "MRR@5",
+    "citation precision",
+    "answer correctness",
+    "latency p95",
+    "token cost"
+  ],
+  "target": "Reference target: 200+ questions, six method rows, Recall@5/MRR@5 with denominators, and every citation linked to a document/page ID."
+}

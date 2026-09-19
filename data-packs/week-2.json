@@ -1,0 +1,44 @@
+{
+  "week": 2,
+  "title": "Measured retrieval system",
+  "dataset": "QASPER starter slice",
+  "source": "AllenAI QASPER · 5,049 questions over 1,585 papers",
+  "fixture": [
+    [
+      "question_id",
+      "question",
+      "evidence_id"
+    ],
+    [
+      "q-demo-01",
+      "What limitation did the authors report?",
+      "paper-demo:p2"
+    ],
+    [
+      "q-demo-02",
+      "Which setting improved recall?",
+      "paper-demo:p5"
+    ]
+  ],
+  "files": [
+    "data/qasper/manifest.json",
+    "retrieval/backends.py",
+    "evals/retrieval_report.json",
+    "reports/retrieval_decision.md",
+    "tests/test_provenance.py"
+  ],
+  "metrics": [
+    "Recall@5",
+    "MRR@5",
+    "citation precision",
+    "answer correctness",
+    "latency p95",
+    "token cost"
+  ],
+  "benchmark": {
+    "minimum_cases": 200,
+    "artifact": "reports/retrieval_decision.md",
+    "smoke_fixture_is_not_benchmark": true,
+    "real_data_command": "python scripts/fetch_data.py --cases 200"
+  }
+}

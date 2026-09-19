@@ -1,0 +1,14 @@
+{
+  "week": 7,
+  "dataset": "smoke_fixture",
+  "minimum_cases": 20,
+  "required_metrics": [
+    "trace completeness",
+    "latency p50/p95",
+    "error rate",
+    "retry rate",
+    "tokens/request",
+    "cost/request"
+  ],
+  "target": "Reference target: 20 real runs, complete traces, latency p95, retries, tokens, cost and one trace-plus-log failure investigation."
+}

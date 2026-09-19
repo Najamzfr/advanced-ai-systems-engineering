@@ -1,0 +1,1 @@
+"""Deterministic weekly project checker."""

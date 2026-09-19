@@ -1,0 +1,1185 @@
+[
+  {
+    "week": 1,
+    "slug": "model-evaluation-harness",
+    "title": "Model evaluation harness",
+    "problem": "A support team needs a defensible way to compare models before choosing one for customer queries.",
+    "dataset": "BANKING77 starter slice",
+    "source": "PolyAI/BANKING77 · CC BY 4.0",
+    "tools": "Provider adapter, pytest, structured outputs, calibrated judge",
+    "deliverable": "A CLI that evaluates two model configurations on 300 stratified cases and produces a model-selection report.",
+    "metrics": [
+      "macro F1",
+      "schema validity",
+      "latency p95",
+      "cost per successful case",
+      "judge agreement"
+    ],
+    "checkpoints": [
+      "Run the same frozen test set through both providers and save raw results.",
+      "Report per-intent metrics, not only aggregate accuracy.",
+      "Calibrate the judge on 30 human-reviewed cases and report disagreements.",
+      "Write the routing decision with quality, latency, cost and fallback evidence."
+    ],
+    "substeps": [
+      [
+        [
+          "make setup",
+          "setup: ready; smoke fixture available; real benchmark not claimed"
+        ],
+        [
+          "make run",
+          "reports/metrics.json contains dataset=smoke_fixture and two model keys"
+        ],
+        [
+          "make check-step-1",
+          "PASS: starter contract and smoke metrics are present"
+        ]
+      ],
+      [
+        [
+          "python scripts/fetch_banking77.py --cases 300 --min-per-intent 15",
+          "data/manifest.json reports status=real_data and cases=300"
+        ],
+        [
+          "make evaluate",
+          "reports/metrics.json reports dataset=banking77 and 300+ cases per model"
+        ],
+        [
+          "make check-step-2",
+          "PASS: paired real-data evaluation and per-intent coverage are present"
+        ]
+      ],
+      [
+        [
+          "wc -l data/eval.jsonl",
+          "300 or more frozen evaluation records"
+        ],
+        [
+          "make check-step-3",
+          "PASS: denominators cover quality, schema, latency and every intent"
+        ],
+        [
+          "python -m unittest discover -s tests -v",
+          "all contract tests pass"
+        ]
+      ],
+      [
+        [
+          "make grade",
+          "GRADE PASS with 300+ paired cases and 30+ audit rows"
+        ],
+        [
+          "make check-step-4",
+          "PASS: calibrated judge evidence and model-selection report are complete"
+        ],
+        [
+          "sed -n \"1,80p\" reports/model_selection.md",
+          "decision names a winner, trade-offs, fallback and limitation"
+        ]
+      ]
+    ],
+    "hints": [
+      [
+        "Start with the deterministic providers; keep their output schema unchanged while you wire the runner.",
+        "Read the denominator object before looking at the score.",
+        "A smoke pass is wiring evidence only."
+      ],
+      [
+        "The fetch script is intentionally deterministic; inspect its manifest before opening the JSONL.",
+        "Run both models from the same case IDs and preserve raw predictions.",
+        "If a metric is missing, trace the row shape in evals/metrics.py."
+      ],
+      [
+        "Per-intent counts expose class imbalance that macro F1 hides.",
+        "Use one command to inspect denominators and one to inspect failures.",
+        "Do not delete failed rows to make the aggregate cleaner."
+      ],
+      [
+        "The audit file is a labeled sample, not model-generated agreement.",
+        "Write the routing decision after you have paired quality, latency and cost.",
+        "State what evidence would reverse the decision."
+      ]
+    ],
+    "reference": {
+      "title": "Reference solution",
+      "description": "A complete deterministic reference is shipped with the starter so you can compare structure and real output without copying a provider.",
+      "files": [
+        "reference/README.md",
+        "reference/expected-smoke-metrics.json",
+        "reference/model_selection.md"
+      ],
+      "expected": "Smoke reference: two models × 3 cases, schema validity 1.0, judge denominator 0. Real-data target: 300 paired cases, 15+ cases for every named confusion-prone intent, and 30 audited rows."
+    },
+    "walkthrough": {
+      "title": "Checkpoint 1 walkthrough",
+      "body": "Start from a clean unzip. Run <code>make setup</code>; confirm the contract message. Run <code>make run</code>; open <code>reports/metrics.json</code> and verify that both <code>baseline-v1</code> and <code>robust-v2</code> have the same case denominator. Run <code>make check-step-1</code>. It should print one PASS line and name the exact missing file or key if you skipped a command. Only after this wiring check should you fetch BANKING77."
+    },
+    "files": [
+      "data/manifest.json",
+      "scripts/fetch_banking77.py",
+      "evals/providers.py",
+      "evals/run.py",
+      "reports/metrics.json",
+      "reports/grade.json",
+      "reports/model_selection.md",
+      "course/check.py",
+      "tests/test_contracts.py"
+    ],
+    "fixture": [
+      [
+        "text",
+        "label"
+      ],
+      [
+        "I am still waiting for my card",
+        "card_arrival"
+      ],
+      [
+        "How do I verify my identity",
+        "verify_my_identity"
+      ],
+      [
+        "The cash withdrawal shows twice",
+        "cash_withdrawal_charge"
+      ]
+    ],
+    "note": "Use the built-in fixture for the worked example. The full downloader creates the reproducible evaluation split."
+  },
+  {
+    "week": 2,
+    "slug": "retrieval-ablation",
+    "title": "Measured retrieval system",
+    "problem": "A research assistant must find supporting evidence without hiding retrieval failures behind fluent answers.",
+    "dataset": "QASPER starter slice",
+    "source": "AllenAI QASPER · 5,049 questions over 1,585 papers",
+    "tools": "BM25, vector index, hybrid fusion, reranker, document navigation, long-context baseline",
+    "deliverable": "A CLI Q&A tool with cited sources and an ablation report covering all six retrieval configurations.",
+    "metrics": [
+      "Recall@5",
+      "MRR@5",
+      "citation precision",
+      "answer correctness",
+      "latency p95",
+      "token cost"
+    ],
+    "checkpoints": [
+      "Verify document and question IDs against the manifest.",
+      "Run all six methods on the same questions and corpus snapshot.",
+      "Separate retrieval recall from answer correctness with oracle-context tests.",
+      "Explain whether the best result came from retrieval, reranking or context selection."
+    ],
+    "files": [
+      "data/qasper/manifest.json",
+      "retrieval/backends.py",
+      "evals/retrieval_report.json",
+      "reports/retrieval_decision.md",
+      "tests/test_provenance.py"
+    ],
+    "fixture": [
+      [
+        "question_id",
+        "question",
+        "evidence_id"
+      ],
+      [
+        "q-demo-01",
+        "What limitation did the authors report?",
+        "paper-demo:p2"
+      ],
+      [
+        "q-demo-02",
+        "Which setting improved recall?",
+        "paper-demo:p5"
+      ]
+    ],
+    "note": "The starter contains a small paper fixture. Fetch the assigned corpus, preserve document/page provenance, and do not promote the fixture scores.",
+    "starter": {
+      "dataset": "QASPER or pinned public documentation corpus",
+      "source": "https://allenai.org/data/qasper",
+      "minCases": 200,
+      "artifact": "reports/retrieval_decision.md",
+      "command": "python scripts/fetch_data.py --cases 200"
+    },
+    "substeps": [
+      [
+        [
+          "make setup",
+          "starter contract ready; smoke fixture available"
+        ],
+        [
+          "make run",
+          "reports/metrics.json contains cases and required metric keys"
+        ],
+        [
+          "make check-step-1",
+          "PASS: starter smoke contract is present"
+        ]
+      ],
+      [
+        [
+          "python scripts/fetch_data.py --cases 200",
+          "data/manifest.json status=real_data with source and checksum"
+        ],
+        [
+          "make evaluate",
+          "same question IDs evaluated for all six retrieval methods"
+        ],
+        [
+          "make check-step-2",
+          "PASS: corpus snapshot and minimum cases are valid"
+        ]
+      ],
+      [
+        [
+          "python -m course.check check-step-3",
+          "PASS: retrieval metrics include Recall@5 and MRR@5 denominators"
+        ],
+        [
+          "cat reports/retrieval_report.json",
+          "six method rows with citations and failures"
+        ],
+        [
+          "make test",
+          "provenance tests pass"
+        ]
+      ],
+      [
+        [
+          "make grade",
+          "GRADE PASS with real corpus, six methods and cited evidence"
+        ],
+        [
+          "make check-step-4",
+          "PASS: retrieval decision artifact is complete"
+        ],
+        [
+          "sed -n \"1,100p\" reports/retrieval_decision.md",
+          "decision names retrieval trade-offs and limitation"
+        ]
+      ]
+    ],
+    "hints": [
+      [
+        "Keep the corpus snapshot immutable once IDs are assigned.",
+        "Start with BM25 as the audit baseline."
+      ],
+      [
+        "Record page/document IDs beside every returned passage.",
+        "Do not count a citation as correct if it cannot be opened."
+      ],
+      [
+        "Use oracle-context tests to separate retrieval from generation.",
+        "Inspect misses before changing the prompt."
+      ],
+      [
+        "State whether recall, correctness or latency is the declared objective.",
+        "A fluent answer cannot repair a missing citation."
+      ]
+    ],
+    "reference": {
+      "title": "Reference solution",
+      "description": "A deterministic six-method ablation reference gives you concrete report shape, denominators and citation provenance.",
+      "files": [
+        "reference/README.md",
+        "reference/expected-metrics.json",
+        "reference/retrieval_decision.md"
+      ],
+      "expected": "Reference target: 200+ questions, six method rows, Recall@5/MRR@5 with denominators, and every citation linked to a document/page ID."
+    },
+    "walkthrough": {
+      "title": "Checkpoint 1 walkthrough",
+      "body": "Run <code>make setup</code>, then <code>make run</code>. Open <code>reports/metrics.json</code> and verify the smoke denominator before touching retrieval code. Run <code>make check-step-1</code>; it should identify the exact report keys needed before you fetch QASPER."
+    }
+  },
+  {
+    "week": 3,
+    "slug": "tool-using-agent",
+    "title": "Bounded tool-using agent",
+    "problem": "A research assistant must select tools, validate arguments and recover from tool failures without taking unrestricted actions.",
+    "dataset": "Week 2 corpus plus public metadata fixtures",
+    "source": "QASPER corpus and versioned API response fixtures",
+    "tools": "First-principles runtime, MCP server, typed tool contracts, retry and idempotency controls",
+    "deliverable": "An agent that answers a research question with at least two read tools and one controlled write tool.",
+    "metrics": [
+      "tool-selection accuracy",
+      "argument validity",
+      "successful completion rate",
+      "retry rate",
+      "duplicate-effect rate"
+    ],
+    "checkpoints": [
+      "Discover tools and reject a malformed schema before execution.",
+      "Complete a two-tool research request with a traceable evidence chain.",
+      "Simulate a timeout after a write and reconcile the effect using a stable action ID.",
+      "Compare the agent with an explicit workflow under the same budget."
+    ],
+    "files": [
+      "src/runtime.py",
+      "mcp/server.py",
+      "tests/test_tool_contracts.py",
+      "reports/agent_decision.md",
+      "evals/trajectory_report.json"
+    ],
+    "fixture": [
+      [
+        "tool",
+        "input",
+        "expected"
+      ],
+      [
+        "search_documents",
+        "{\"query\":\"retrieval\"}",
+        "ranked evidence"
+      ],
+      [
+        "fetch_document",
+        "{\"document_id\":\"paper-demo\"}",
+        "versioned text"
+      ],
+      [
+        "store_result",
+        "{\"action_id\":\"run-001\"}",
+        "idempotent write"
+      ]
+    ],
+    "note": "The fixtures make the first run deterministic. A live Open-Meteo adapter is optional; contract tests must pass without network access.",
+    "starter": {
+      "dataset": "Open-Meteo responses plus Week 2 evidence fixtures",
+      "source": "https://api.open-meteo.com/v1/forecast",
+      "minCases": 20,
+      "artifact": "reports/agent_decision.md",
+      "command": "python scripts/fetch_data.py --cases 20"
+    },
+    "substeps": [
+      [
+        [
+          "make setup",
+          "tool contract smoke path is ready"
+        ],
+        [
+          "make run",
+          "trajectory report contains tool calls and statuses"
+        ],
+        [
+          "make check-step-1",
+          "PASS: typed runtime smoke contract is present"
+        ]
+      ],
+      [
+        [
+          "python scripts/fetch_data.py --cases 20",
+          "manifest records versioned API fixtures and checksum"
+        ],
+        [
+          "make evaluate",
+          "at least 20 real tool-use trajectories are recorded"
+        ],
+        [
+          "make check-step-2",
+          "PASS: two read tools and controlled write evidence exist"
+        ]
+      ],
+      [
+        [
+          "python -m course.check check-step-3",
+          "PASS: argument validity and retry denominators are present"
+        ],
+        [
+          "cat reports/agent_decision.md",
+          "evidence chain links question, tools and result"
+        ],
+        [
+          "make test",
+          "tool contract tests pass"
+        ]
+      ],
+      [
+        [
+          "make grade",
+          "GRADE PASS with bounded tools and recovery evidence"
+        ],
+        [
+          "make check-step-4",
+          "PASS: agent decision artifact is complete"
+        ],
+        [
+          "sed -n \"1,100p\" reports/agent_decision.md",
+          "decision names idempotency boundary and limitation"
+        ]
+      ]
+    ],
+    "hints": [
+      [
+        "Reject malformed schemas before execution, not after a tool call.",
+        "Keep tool permissions narrower than model instructions."
+      ],
+      [
+        "Give every write an action ID.",
+        "Persist raw tool inputs and outputs."
+      ],
+      [
+        "A timeout after a write is the key recovery case.",
+        "Measure duplicate-effect rate separately from retry rate."
+      ],
+      [
+        "Compare against a fixed workflow baseline.",
+        "Explain which failures require human approval."
+      ]
+    ],
+    "reference": {
+      "title": "Reference solution",
+      "description": "The reference runtime shows typed tool contracts, a two-read-plus-write trace and idempotent recovery evidence.",
+      "files": [
+        "reference/README.md",
+        "reference/expected-metrics.json",
+        "reference/agent_decision.md"
+      ],
+      "expected": "Reference target: 20+ trajectories, valid arguments, two read tools, one controlled write, and zero duplicate effects in the fixture."
+    },
+    "walkthrough": {
+      "title": "Checkpoint 1 walkthrough",
+      "body": "Run the smoke path and open the trajectory report. Trace one request from tool discovery to validation to execution. Run <code>make check-step-1</code> before adding a live API; the first pass is about contract boundaries, not network access."
+    }
+  },
+  {
+    "week": 4,
+    "slug": "planner-executor-release",
+    "title": "Planner-executor research release",
+    "problem": "Multi-part research questions need decomposition, but added agents must earn their cost and complexity.",
+    "dataset": "QASPER multi-hop starter set",
+    "source": "Held-out questions derived from the Week 2 manifest",
+    "tools": "Single-agent baseline, planner, executor, verifier, equal-budget evaluation",
+    "deliverable": "Project 1 release comparing a single agent with planner-executor on 25 multi-part questions.",
+    "metrics": [
+      "task success",
+      "evidence completeness",
+      "unsupported-claim rate",
+      "model calls",
+      "token use",
+      "p95 latency"
+    ],
+    "checkpoints": [
+      "Define the task graph and acceptance condition before calling a model.",
+      "Run both architectures with equal model-call and token budgets.",
+      "Record failed plans and the earliest actionable error.",
+      "Release only the architecture that improves the declared objective enough to justify its complexity."
+    ],
+    "files": [
+      "src/planner.py",
+      "src/executor.py",
+      "evals/project1_report.json",
+      "reports/architecture_decision.md",
+      "demo/run_project1.py"
+    ],
+    "fixture": [
+      [
+        "case_id",
+        "subtasks",
+        "acceptance"
+      ],
+      [
+        "multi-01",
+        "2",
+        "both claims cited"
+      ],
+      [
+        "multi-02",
+        "3",
+        "contradiction preserved"
+      ]
+    ],
+    "note": "Project 1 is the first release, not a separate new codebase. Carry the evaluation, retrieval and tool contracts forward.",
+    "starter": {
+      "dataset": "Held-out multi-hop questions from the Week 2 manifest",
+      "source": "local:week-2-eval.jsonl",
+      "minCases": 25,
+      "artifact": "reports/architecture_decision.md",
+      "command": "python scripts/fetch_data.py --cases 25"
+    },
+    "substeps": [
+      [
+        [
+          "make setup",
+          "planner/executor smoke fixture is ready"
+        ],
+        [
+          "make run",
+          "task graph and acceptance condition are recorded"
+        ],
+        [
+          "make check-step-1",
+          "PASS: decomposition contract is present"
+        ]
+      ],
+      [
+        [
+          "python scripts/fetch_data.py --cases 25",
+          "held-out multi-hop manifest is frozen"
+        ],
+        [
+          "make evaluate",
+          "single-agent and planner-executor runs share budgets"
+        ],
+        [
+          "make check-step-2",
+          "PASS: paired architecture metrics are present"
+        ]
+      ],
+      [
+        [
+          "python -m course.check check-step-3",
+          "PASS: failed plans include earliest actionable error"
+        ],
+        [
+          "cat reports/project1_report.json",
+          "evidence completeness and unsupported claims are measured"
+        ],
+        [
+          "make test",
+          "planner/executor contract tests pass"
+        ]
+      ],
+      [
+        [
+          "make grade",
+          "GRADE PASS with equal-budget comparison"
+        ],
+        [
+          "make check-step-4",
+          "PASS: architecture decision artifact is complete"
+        ],
+        [
+          "sed -n \"1,100p\" reports/architecture_decision.md",
+          "release decision justifies complexity or rejects it"
+        ]
+      ]
+    ],
+    "hints": [
+      [
+        "Define acceptance before prompting the planner.",
+        "A plan is not successful if its evidence is incomplete."
+      ],
+      [
+        "Equalize model-call and token budgets.",
+        "Freeze held-out questions before tuning."
+      ],
+      [
+        "Record the first failing node, not only final failure.",
+        "Keep planner and executor traces separate."
+      ],
+      [
+        "The simpler baseline can win.",
+        "State the threshold that earns extra agent complexity."
+      ]
+    ],
+    "reference": {
+      "title": "Reference solution",
+      "description": "The reference release compares single-agent and planner-executor behavior under equal budgets with explicit evidence completeness.",
+      "files": [
+        "reference/README.md",
+        "reference/expected-metrics.json",
+        "reference/architecture_decision.md"
+      ],
+      "expected": "Reference target: 25 held-out multi-part questions, equal budgets, task success plus evidence completeness, and a documented complexity decision."
+    },
+    "walkthrough": {
+      "title": "Checkpoint 1 walkthrough",
+      "body": "Run the smoke project and inspect the task graph before inspecting model output. Verify that every subtask has an acceptance condition, then run <code>make check-step-1</code>. Only then add the held-out multi-hop set."
+    }
+  },
+  {
+    "week": 5,
+    "slug": "agent-red-team",
+    "title": "Red-team and repair the agent",
+    "problem": "A system can produce correct prose while still making unsafe tool calls or leaking information.",
+    "dataset": "Fixed security attack pack",
+    "source": "Course-owned cases with documented attack objectives",
+    "tools": "Attack runner, permission policy, input/output validation, audit log, regression tests",
+    "deliverable": "A before-and-after security report with at least 50 attacks and one verified mitigation.",
+    "metrics": [
+      "attack success rate",
+      "benign task success",
+      "unauthorized tool-call rate",
+      "false refusal rate",
+      "recovery rate"
+    ],
+    "checkpoints": [
+      "Run the unchanged Week 4 release against every attack category.",
+      "Classify the forbidden effect, not only the wording of the attack.",
+      "Implement one enforceable control at the execution boundary.",
+      "Re-run the original attacks and a benign regression set."
+    ],
+    "files": [
+      "security/attacks.jsonl",
+      "security/policy.py",
+      "reports/red_team_report.json",
+      "reports/incident_postmortem.md",
+      "tests/test_security_regressions.py"
+    ],
+    "fixture": [
+      [
+        "attack_id",
+        "category",
+        "forbidden_effect"
+      ],
+      [
+        "atk-001",
+        "indirect_injection",
+        "secret disclosure"
+      ],
+      [
+        "atk-002",
+        "tool_misuse",
+        "unauthorized write"
+      ],
+      [
+        "atk-003",
+        "resource_exhaustion",
+        "unbounded loop"
+      ]
+    ],
+    "note": "A refusal-only system does not pass. Report legitimate task success beside attack success.",
+    "starter": {
+      "dataset": "Course-owned fixed attack pack with benign controls",
+      "source": "local:security/attacks.jsonl",
+      "minCases": 50,
+      "artifact": "reports/red_team_report.json",
+      "command": "python scripts/fetch_data.py --cases 50"
+    },
+    "substeps": [
+      [
+        [
+          "make setup",
+          "attack runner and benign controls are ready"
+        ],
+        [
+          "make run",
+          "smoke report separates attacks from benign cases"
+        ],
+        [
+          "make check-step-1",
+          "PASS: security harness and categories are present"
+        ]
+      ],
+      [
+        [
+          "python scripts/fetch_data.py --cases 50",
+          "attack manifest records category and forbidden effect"
+        ],
+        [
+          "make evaluate",
+          "unchanged Week 4 agent runs every attack"
+        ],
+        [
+          "make check-step-2",
+          "PASS: before-state attack metrics are present"
+        ]
+      ],
+      [
+        [
+          "python -m course.check check-step-3",
+          "PASS: policy decision is enforced at the execution boundary"
+        ],
+        [
+          "cat reports/red_team_report.json",
+          "attack and benign denominators are separated"
+        ],
+        [
+          "make test",
+          "security regression tests pass"
+        ]
+      ],
+      [
+        [
+          "make grade",
+          "GRADE PASS with 50+ attacks and one verified fix"
+        ],
+        [
+          "make check-step-4",
+          "PASS: post-fix report and incident narrative are complete"
+        ],
+        [
+          "sed -n \"1,100p\" reports/incident_postmortem.md",
+          "mitigation names residual risk and regression coverage"
+        ]
+      ]
+    ],
+    "hints": [
+      [
+        "Classify the forbidden effect, not just the prompt wording.",
+        "Include benign controls in every run."
+      ],
+      [
+        "Do not let a refusal-only metric hide unauthorized calls.",
+        "Keep the original attack pack unchanged."
+      ],
+      [
+        "Enforce permissions outside the model.",
+        "Re-run the exact failing attack after the fix."
+      ],
+      [
+        "Report false refusals beside attack success.",
+        "A mitigation without a regression test is not complete."
+      ]
+    ],
+    "reference": {
+      "title": "Reference solution",
+      "description": "The reference red-team pack includes attack categories, benign controls, boundary policy evidence and a before/after comparison.",
+      "files": [
+        "reference/README.md",
+        "reference/expected-metrics.json",
+        "reference/red_team_report.md"
+      ],
+      "expected": "Reference target: 50+ attacks, benign success denominator, attack success before/after, and one mitigation covered by regression tests."
+    },
+    "walkthrough": {
+      "title": "Checkpoint 1 walkthrough",
+      "body": "Run the smoke attack runner and label each case by effect. Confirm that benign controls are counted separately. Run <code>make check-step-1</code>; it should pass only when the harness can distinguish attack and benign rows."
+    }
+  },
+  {
+    "week": 6,
+    "slug": "adaptation-inference-study",
+    "title": "Adaptation and inference study",
+    "problem": "A team needs to know whether adaptation improves the task enough to justify training and serving cost.",
+    "dataset": "Versioned labeled subset from Weeks 1–2",
+    "source": "Course split with source-level leakage checks",
+    "tools": "PEFT LoRA, optional QLoRA, inference benchmark, memory and throughput recorder",
+    "deliverable": "A before-and-after comparison covering prompting, RAG, LoRA and serving behavior.",
+    "metrics": [
+      "task quality",
+      "data leakage checks",
+      "TTFT",
+      "tokens/sec",
+      "p95 latency",
+      "peak memory"
+    ],
+    "checkpoints": [
+      "Freeze train, development and test identities before adaptation.",
+      "Compare zero-shot, few-shot, advanced prompt, RAG, LoRA and LoRA plus RAG.",
+      "Measure one serving optimisation under a declared request mix.",
+      "State when adaptation should not be used."
+    ],
+    "files": [
+      "data/splits/manifest.json",
+      "experiments/adaptation.py",
+      "reports/adaptation_report.json",
+      "reports/capacity_plan.md",
+      "tests/test_split_integrity.py"
+    ],
+    "fixture": [
+      [
+        "case_id",
+        "source_id",
+        "label"
+      ],
+      [
+        "adapt-001",
+        "banking77-demo-01",
+        "card_arrival"
+      ],
+      [
+        "adapt-002",
+        "banking77-demo-02",
+        "verify_my_identity"
+      ]
+    ],
+    "note": "The course checks quality and retained behavior. Training loss alone is not evidence of a useful adaptation.",
+    "starter": {
+      "dataset": "Versioned labeled subset from Weeks 1–2",
+      "source": "local:course-split-manifest.json",
+      "minCases": 300,
+      "artifact": "reports/adaptation_report.json",
+      "command": "python scripts/fetch_data.py --cases 300"
+    },
+    "substeps": [
+      [
+        [
+          "make setup",
+          "split manifest and benchmark smoke path are ready"
+        ],
+        [
+          "make run",
+          "smoke report records quality and serving fields"
+        ],
+        [
+          "make check-step-1",
+          "PASS: adaptation experiment contract is present"
+        ]
+      ],
+      [
+        [
+          "python scripts/fetch_data.py --cases 300",
+          "train/dev/test identities are frozen in the manifest"
+        ],
+        [
+          "make evaluate",
+          "all six adaptation baselines share the same test IDs"
+        ],
+        [
+          "make check-step-2",
+          "PASS: split integrity and minimum cases are valid"
+        ]
+      ],
+      [
+        [
+          "python -m course.check check-step-3",
+          "PASS: leakage checks and serving metrics are present"
+        ],
+        [
+          "cat reports/adaptation_report.json",
+          "quality, TTFT, tokens/sec and p95 are reported"
+        ],
+        [
+          "make test",
+          "split-integrity tests pass"
+        ]
+      ],
+      [
+        [
+          "make grade",
+          "GRADE PASS with before/after and serving evidence"
+        ],
+        [
+          "make check-step-4",
+          "PASS: capacity plan and adaptation report are complete"
+        ],
+        [
+          "sed -n \"1,100p\" reports/capacity_plan.md",
+          "recommendation states when not to adapt"
+        ]
+      ]
+    ],
+    "hints": [
+      [
+        "Freeze identities before choosing prompts or adapters.",
+        "Keep development data out of the final test."
+      ],
+      [
+        "Compare simple prompting before LoRA.",
+        "Measure serving behavior under a declared request mix."
+      ],
+      [
+        "Look for leakage before celebrating quality.",
+        "Training loss is not task quality."
+      ],
+      [
+        "Include memory and throughput in the decision.",
+        "State the workload where adaptation stops paying back."
+      ]
+    ],
+    "reference": {
+      "title": "Reference solution",
+      "description": "The reference study shows leakage checks, six baseline rows and a capacity recommendation tied to measured serving behavior.",
+      "files": [
+        "reference/README.md",
+        "reference/expected-metrics.json",
+        "reference/capacity_plan.md"
+      ],
+      "expected": "Reference target: 300+ labeled cases, leakage-free splits, six comparisons, and quality/latency/memory evidence."
+    },
+    "walkthrough": {
+      "title": "Checkpoint 1 walkthrough",
+      "body": "Run the smoke experiment and inspect the split manifest. Verify that train, development and test IDs are distinct before reading quality metrics. Run <code>make check-step-1</code> as the exit condition."
+    }
+  },
+  {
+    "week": 7,
+    "slug": "observed-production-workflow",
+    "title": "Observed production workflow",
+    "problem": "Observability is only useful when it explains a real request, its cost, and the failure boundary.",
+    "dataset": "Twenty real runs from the Week 4 agent",
+    "source": "Learner-generated runs over the fixed project evaluation set",
+    "tools": "OpenTelemetry, Grafana OTEL-LGTM, Tempo, Prometheus, Loki, Docker Compose",
+    "deliverable": "A local dashboard with traces, latency, retries, tokens and estimated cost for at least 20 runs.",
+    "metrics": [
+      "trace completeness",
+      "latency p50/p95",
+      "error rate",
+      "retry rate",
+      "tokens/request",
+      "cost/request"
+    ],
+    "checkpoints": [
+      "Start the local observability stack from the supplied compose file.",
+      "Trace retrieval, model, tool, verification and approval spans under one run ID.",
+      "Provision a dashboard and show p95 latency and cost by operation.",
+      "Inject a tool failure and locate it from the trace and logs."
+    ],
+    "files": [
+      "infra/docker-compose.yml",
+      "monitoring/otel-config.yaml",
+      "monitoring/dashboard.json",
+      "reports/observability_report.md",
+      "tests/test_trace_contract.py"
+    ],
+    "fixture": [
+      [
+        "run_id",
+        "operation",
+        "status"
+      ],
+      [
+        "run-001",
+        "retrieval",
+        "ok"
+      ],
+      [
+        "run-002",
+        "tool:fetch_document",
+        "error"
+      ],
+      [
+        "run-003",
+        "verification",
+        "ok"
+      ]
+    ],
+    "note": "Cost is computed from recorded token counts and a versioned price file. The dashboard must show the formula and its source.",
+    "starter": {
+      "dataset": "Twenty real runs from the Week 4 agent",
+      "source": "local:week-4-traces.jsonl",
+      "minCases": 20,
+      "artifact": "reports/observability_report.md",
+      "command": "python scripts/fetch_data.py --cases 20"
+    },
+    "substeps": [
+      [
+        [
+          "make setup",
+          "observability stack contract and trace fixture are ready"
+        ],
+        [
+          "make run",
+          "smoke trace report has run IDs and span fields"
+        ],
+        [
+          "make check-step-1",
+          "PASS: trace contract is present"
+        ]
+      ],
+      [
+        [
+          "python scripts/fetch_data.py --cases 20",
+          "20 real runs are listed with source IDs"
+        ],
+        [
+          "make evaluate",
+          "traces include retrieval, model, tool and verification spans"
+        ],
+        [
+          "make check-step-2",
+          "PASS: trace completeness and run count are valid"
+        ]
+      ],
+      [
+        [
+          "python -m course.check check-step-3",
+          "PASS: p50/p95, retries, tokens and cost fields are present"
+        ],
+        [
+          "cat reports/observability_report.md",
+          "dashboard panels name queries and denominators"
+        ],
+        [
+          "make test",
+          "trace-contract tests pass"
+        ]
+      ],
+      [
+        [
+          "make grade",
+          "GRADE PASS with 20 runs and failure injection evidence"
+        ],
+        [
+          "make check-step-4",
+          "PASS: dashboard export and failure narrative are complete"
+        ],
+        [
+          "sed -n \"1,100p\" reports/observability_report.md",
+          "failure is located in both trace and logs"
+        ]
+      ]
+    ],
+    "hints": [
+      [
+        "Keep one run ID across every span.",
+        "Record token prices in a versioned file."
+      ],
+      [
+        "Start with one successful trace before injecting failure.",
+        "Do not count a missing span as zero latency."
+      ],
+      [
+        "Show formulas for cost and p95.",
+        "Use the same query in the report and dashboard."
+      ],
+      [
+        "Inject one tool failure and follow it end to end.",
+        "Dashboard screenshots need readable legends and time ranges."
+      ]
+    ],
+    "reference": {
+      "title": "Reference solution",
+      "description": "The reference observability pack includes trace fields, dashboard queries, cost formulas and a failure-injection narrative.",
+      "files": [
+        "reference/README.md",
+        "reference/expected-metrics.json",
+        "reference/observability_report.md"
+      ],
+      "expected": "Reference target: 20 real runs, complete traces, latency p95, retries, tokens, cost and one trace-plus-log failure investigation."
+    },
+    "walkthrough": {
+      "title": "Checkpoint 1 walkthrough",
+      "body": "Start the local stack, run one smoke request and inspect its run ID across retrieval, model and tool spans. Run <code>make check-step-1</code> before provisioning the full dashboard."
+    }
+  },
+  {
+    "week": 8,
+    "slug": "release-and-defense",
+    "title": "Deploy, monitor and defend the system",
+    "problem": "A working demo is not a release until it survives failures, exposes evidence and can be reproduced by another operator.",
+    "dataset": "Full evaluation, security and recovery packs",
+    "source": "All versioned course datasets and generated production traces",
+    "tools": "Docker, release checker, failure injection, dashboard export, technical defense",
+    "deliverable": "One deployed, monitored and evaluated assistant with a reproducible release report.",
+    "metrics": [
+      "release pass rate",
+      "quality under failure",
+      "recovery success",
+      "SLO compliance",
+      "cost per successful task",
+      "open limitations"
+    ],
+    "checkpoints": [
+      "Build the complete stack from a clean checkout.",
+      "Run the release checker against evaluation, security and observability contracts.",
+      "Inject provider, retrieval, tool, queue and approval failures.",
+      "Defend the final architecture using measurements and state its limits."
+    ],
+    "files": [
+      "docker-compose.yml",
+      "reports/release_report.json",
+      "reports/final_report.md",
+      "monitoring/dashboard.json",
+      "RELEASE.md"
+    ],
+    "fixture": [
+      [
+        "failure",
+        "expected_behavior"
+      ],
+      [
+        "model_unavailable",
+        "fallback or clear degradation"
+      ],
+      [
+        "retrieval_down",
+        "bounded failure with trace"
+      ],
+      [
+        "approval_timeout",
+        "recoverable pending state"
+      ]
+    ],
+    "note": "Project 2 remains the course capstone. It consumes the components and evidence produced in Weeks 1–7.",
+    "starter": {
+      "dataset": "Full evaluation, security and recovery packs",
+      "source": "local:course-release-manifest.json",
+      "minCases": 150,
+      "artifact": "reports/release_report.json",
+      "command": "python scripts/fetch_data.py --cases 150"
+    },
+    "substeps": [
+      [
+        [
+          "make setup",
+          "release contract and smoke stack are ready"
+        ],
+        [
+          "make run",
+          "smoke release report lists evaluation, security and observability fields"
+        ],
+        [
+          "make check-step-1",
+          "PASS: release contract is present"
+        ]
+      ],
+      [
+        [
+          "python scripts/fetch_data.py --cases 150",
+          "release manifest pins all evaluation and recovery packs"
+        ],
+        [
+          "make evaluate",
+          "full pipeline produces quality, security and recovery evidence"
+        ],
+        [
+          "make check-step-2",
+          "PASS: release case count and manifest are valid"
+        ]
+      ],
+      [
+        [
+          "python -m course.check check-step-3",
+          "PASS: failure matrix and SLO fields are present"
+        ],
+        [
+          "cat reports/release_report.json",
+          "release checks include provider, retrieval, tool and approval failures"
+        ],
+        [
+          "make test",
+          "release tests pass"
+        ]
+      ],
+      [
+        [
+          "make grade",
+          "GRADE PASS with reproducible release evidence"
+        ],
+        [
+          "make check-step-4",
+          "PASS: final report and dashboard export are complete"
+        ],
+        [
+          "sed -n \"1,100p\" reports/final_report.md",
+          "defense states measured limits and open risks"
+        ]
+      ]
+    ],
+    "hints": [
+      [
+        "Build from a clean checkout before calling it reproducible.",
+        "Keep release checks independent from the demo UI."
+      ],
+      [
+        "Run evaluation and security packs against the same release commit.",
+        "Record degraded behavior, not only availability."
+      ],
+      [
+        "Inject failures one boundary at a time.",
+        "Tie each SLO to an observable measurement."
+      ],
+      [
+        "A release is incomplete if another operator cannot reproduce it.",
+        "Defend trade-offs with evidence from Weeks 1–7."
+      ]
+    ],
+    "reference": {
+      "title": "Reference solution",
+      "description": "The reference release contains the final manifest, failure matrix, monitored dashboard and a concise technical defense.",
+      "files": [
+        "reference/README.md",
+        "reference/expected-metrics.json",
+        "reference/final_report.md"
+      ],
+      "expected": "Reference target: 150+ release cases, evaluation/security/observability checks, injected failures and a reproducible deployment report."
+    },
+    "walkthrough": {
+      "title": "Checkpoint 1 walkthrough",
+      "body": "Build the starter from a clean directory, run the smoke release and inspect the report fields before deploying anything. Run <code>make check-step-1</code>; the capstone starts only when the release contract is visible."
+    }
+  }
+]

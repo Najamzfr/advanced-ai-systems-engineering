@@ -1,0 +1,48 @@
+{
+  "week": 3,
+  "title": "Bounded tool-using agent",
+  "dataset": "Week 2 corpus plus public metadata fixtures",
+  "source": "QASPER corpus and versioned API response fixtures",
+  "fixture": [
+    [
+      "tool",
+      "input",
+      "expected"
+    ],
+    [
+      "search_documents",
+      "{\"query\":\"retrieval\"}",
+      "ranked evidence"
+    ],
+    [
+      "fetch_document",
+      "{\"document_id\":\"paper-demo\"}",
+      "versioned text"
+    ],
+    [
+      "store_result",
+      "{\"action_id\":\"run-001\"}",
+      "idempotent write"
+    ]
+  ],
+  "files": [
+    "src/runtime.py",
+    "mcp/server.py",
+    "tests/test_tool_contracts.py",
+    "reports/agent_decision.md",
+    "evals/trajectory_report.json"
+  ],
+  "metrics": [
+    "tool-selection accuracy",
+    "argument validity",
+    "successful completion rate",
+    "retry rate",
+    "duplicate-effect rate"
+  ],
+  "benchmark": {
+    "minimum_cases": 20,
+    "artifact": "reports/agent_decision.md",
+    "smoke_fixture_is_not_benchmark": true,
+    "real_data_command": "python scripts/fetch_data.py --cases 20"
+  }
+}

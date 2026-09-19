@@ -1,0 +1,3 @@
+{"case_id":"smoke-001","text":"I am still waiting for my card","label":"card_arrival"}
+{"case_id":"smoke-002","text":"How do I verify my identity","label":"verify_my_identity"}
+{"case_id":"smoke-003","text":"The cash withdrawal shows twice","label":"cash_withdrawal_charge"}

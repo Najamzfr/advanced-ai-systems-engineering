@@ -1,0 +1,9 @@
+{
+  "week": "2",
+  "dataset": "QASPER or pinned public documentation corpus",
+  "source": "https://allenai.org/data/qasper",
+  "status": "smoke_fixture_only",
+  "cases": 3,
+  "sha256": "smoke-fixture-not-a-benchmark",
+  "minimum_cases_for_grade": 200
+}

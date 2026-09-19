@@ -1,0 +1,14 @@
+{
+  "title": "A/SE agent operations",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": {"from": "now-30m", "to": "now"},
+  "panels": [
+    {"type":"timeseries","title":"Request latency p95","gridPos":{"h":8,"w":12,"x":0,"y":0},"targets":[{"expr":"histogram_quantile(0.95, sum(rate(genai_request_duration_seconds_bucket[5m])) by (le))","refId":"A"}]},
+    {"type":"timeseries","title":"Requests and errors","gridPos":{"h":8,"w":12,"x":12,"y":0},"targets":[{"expr":"sum(rate(genai_requests_total[5m]))","legendFormat":"requests","refId":"A"},{"expr":"sum(rate(genai_errors_total[5m]))","legendFormat":"errors","refId":"B"}]},
+    {"type":"stat","title":"Estimated cost per request","gridPos":{"h":6,"w":8,"x":0,"y":8},"targets":[{"expr":"sum(rate(genai_cost_usd_total[5m])) / sum(rate(genai_requests_total[5m]))","refId":"A"}]},
+    {"type":"stat","title":"Retries","gridPos":{"h":6,"w":8,"x":8,"y":8},"targets":[{"expr":"sum(rate(genai_retries_total[5m]))","refId":"A"}]},
+    {"type":"stat","title":"Tokens per request","gridPos":{"h":6,"w":8,"x":16,"y":8},"targets":[{"expr":"sum(rate(genai_tokens_total[5m])) / sum(rate(genai_requests_total[5m]))","refId":"A"}]}
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "week": "3",
+  "dataset": "Open-Meteo responses plus Week 2 evidence fixtures",
+  "source": "https://api.open-meteo.com/v1/forecast",
+  "status": "smoke_fixture_only",
+  "cases": 3,
+  "sha256": "smoke-fixture-not-a-benchmark",
+  "minimum_cases_for_grade": 20
+}

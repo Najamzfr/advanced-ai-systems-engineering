@@ -1,0 +1,14 @@
+{
+  "week": 6,
+  "dataset": "smoke_fixture",
+  "minimum_cases": 300,
+  "required_metrics": [
+    "task quality",
+    "data leakage checks",
+    "TTFT",
+    "tokens/sec",
+    "p95 latency",
+    "peak memory"
+  ],
+  "target": "Reference target: 300+ labeled cases, leakage-free splits, six comparisons, and quality/latency/memory evidence."
+}

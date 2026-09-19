@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "week1": {
+    "commands": [
+      "make setup",
+      "make run",
+      "make evaluate",
+      "make grade"
+    ],
+    "required_reports": [
+      "reports/metrics.json",
+      "reports/model_selection.md"
+    ],
+    "minimum_cases": 300,
+    "min_cases_per_intent": 15,
+    "human_audit_cases": 30,
+    "principles": [
+      "real BANKING77 records",
+      "fixed data manifest",
+      "machine-readable metrics",
+      "failure evidence",
+      "reproducible command"
+    ]
+  },
+  "other_weeks": {
+    "commands": [
+      "make setup",
+      "make run",
+      "python -m course.check weekN"
+    ],
+    "required_reports": [
+      "reports/metrics.json"
+    ],
+    "minimum_cases": 20
+  },
+  "principles": [
+    "fixed data manifest",
+    "machine-readable metrics",
+    "failure evidence",
+    "reproducible command"
+  ]
+}

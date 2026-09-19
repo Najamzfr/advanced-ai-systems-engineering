@@ -1,0 +1,11 @@
+{
+  "dataset": "BANKING77",
+  "source": "https://raw.githubusercontent.com/PolyAI-LDN/task-specific-datasets/master/banking_data/train.csv",
+  "license": "CC BY 4.0",
+  "split": "train",
+  "status": "smoke_fixture_only",
+  "cases": 3,
+  "sha256": "smoke-fixture-not-a-benchmark",
+  "minimum_cases_for_grade": 300,
+  "minimum_cases_per_intent": 15
+}

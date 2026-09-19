@@ -1,0 +1,44 @@
+{
+  "week": 4,
+  "title": "Planner-executor research release",
+  "dataset": "QASPER multi-hop starter set",
+  "source": "Held-out questions derived from the Week 2 manifest",
+  "fixture": [
+    [
+      "case_id",
+      "subtasks",
+      "acceptance"
+    ],
+    [
+      "multi-01",
+      "2",
+      "both claims cited"
+    ],
+    [
+      "multi-02",
+      "3",
+      "contradiction preserved"
+    ]
+  ],
+  "files": [
+    "src/planner.py",
+    "src/executor.py",
+    "evals/project1_report.json",
+    "reports/architecture_decision.md",
+    "demo/run_project1.py"
+  ],
+  "metrics": [
+    "task success",
+    "evidence completeness",
+    "unsupported-claim rate",
+    "model calls",
+    "token use",
+    "p95 latency"
+  ],
+  "benchmark": {
+    "minimum_cases": 25,
+    "artifact": "reports/architecture_decision.md",
+    "smoke_fixture_is_not_benchmark": true,
+    "real_data_command": "python scripts/fetch_data.py --cases 25"
+  }
+}

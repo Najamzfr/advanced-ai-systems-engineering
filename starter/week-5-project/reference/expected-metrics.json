@@ -1,0 +1,13 @@
+{
+  "week": 5,
+  "dataset": "smoke_fixture",
+  "minimum_cases": 50,
+  "required_metrics": [
+    "attack success rate",
+    "benign task success",
+    "unauthorized tool-call rate",
+    "false refusal rate",
+    "recovery rate"
+  ],
+  "target": "Reference target: 50+ attacks, benign success denominator, attack success before/after, and one mitigation covered by regression tests."
+}

@@ -1,0 +1,14 @@
+{
+  "week": 8,
+  "dataset": "smoke_fixture",
+  "minimum_cases": 150,
+  "required_metrics": [
+    "release pass rate",
+    "quality under failure",
+    "recovery success",
+    "SLO compliance",
+    "cost per successful task",
+    "open limitations"
+  ],
+  "target": "Reference target: 150+ release cases, evaluation/security/observability checks, injected failures and a reproducible deployment report."
+}

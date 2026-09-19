@@ -1,0 +1,8 @@
+{
+  "dataset": "smoke_fixture",
+  "models": {
+    "baseline-v1": {"cases": 3, "schema_validity": 1.0, "denominator": {"quality": 3, "schema": 3, "latency": 3}},
+    "robust-v2": {"cases": 3, "schema_validity": 1.0, "denominator": {"quality": 3, "schema": 3, "latency": 3}}
+  },
+  "judge_denominator": 0
+}

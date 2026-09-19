@@ -1,0 +1,44 @@
+{
+  "week": 6,
+  "title": "Adaptation and inference study",
+  "dataset": "Versioned labeled subset from Weeks 1–2",
+  "source": "Course split with source-level leakage checks",
+  "fixture": [
+    [
+      "case_id",
+      "source_id",
+      "label"
+    ],
+    [
+      "adapt-001",
+      "banking77-demo-01",
+      "card_arrival"
+    ],
+    [
+      "adapt-002",
+      "banking77-demo-02",
+      "verify_my_identity"
+    ]
+  ],
+  "files": [
+    "data/splits/manifest.json",
+    "experiments/adaptation.py",
+    "reports/adaptation_report.json",
+    "reports/capacity_plan.md",
+    "tests/test_split_integrity.py"
+  ],
+  "metrics": [
+    "task quality",
+    "data leakage checks",
+    "TTFT",
+    "tokens/sec",
+    "p95 latency",
+    "peak memory"
+  ],
+  "benchmark": {
+    "minimum_cases": 300,
+    "artifact": "reports/adaptation_report.json",
+    "smoke_fixture_is_not_benchmark": true,
+    "real_data_command": "python scripts/fetch_data.py --cases 300"
+  }
+}

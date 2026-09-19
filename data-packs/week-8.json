@@ -1,0 +1,45 @@
+{
+  "week": 8,
+  "title": "Deploy, monitor and defend the system",
+  "dataset": "Full evaluation, security and recovery packs",
+  "source": "All versioned course datasets and generated production traces",
+  "fixture": [
+    [
+      "failure",
+      "expected_behavior"
+    ],
+    [
+      "model_unavailable",
+      "fallback or clear degradation"
+    ],
+    [
+      "retrieval_down",
+      "bounded failure with trace"
+    ],
+    [
+      "approval_timeout",
+      "recoverable pending state"
+    ]
+  ],
+  "files": [
+    "docker-compose.yml",
+    "reports/release_report.json",
+    "reports/final_report.md",
+    "monitoring/dashboard.json",
+    "RELEASE.md"
+  ],
+  "metrics": [
+    "release pass rate",
+    "quality under failure",
+    "recovery success",
+    "SLO compliance",
+    "cost per successful task",
+    "open limitations"
+  ],
+  "benchmark": {
+    "minimum_cases": 150,
+    "artifact": "reports/release_report.json",
+    "smoke_fixture_is_not_benchmark": true,
+    "real_data_command": "python scripts/fetch_data.py --cases 150"
+  }
+}

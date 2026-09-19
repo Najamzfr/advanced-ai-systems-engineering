@@ -1,0 +1,68 @@
+{
+  "week": 1,
+  "title": "Model evaluation harness",
+  "dataset": "BANKING77 starter slice",
+  "source": "PolyAI/BANKING77 · CC BY 4.0",
+  "fixture": [
+    [
+      "text",
+      "label"
+    ],
+    [
+      "I am still waiting for my card",
+      "card_arrival"
+    ],
+    [
+      "How do I verify my identity",
+      "verify_my_identity"
+    ],
+    [
+      "The cash withdrawal shows twice",
+      "cash_withdrawal_charge"
+    ]
+  ],
+  "files": [
+    "data/manifest.json",
+    "scripts/fetch_banking77.py",
+    "evals/providers.py",
+    "evals/run.py",
+    "reports/metrics.json",
+    "reports/grade.json",
+    "reports/model_selection.md",
+    "course/check.py",
+    "tests/test_contracts.py"
+  ],
+  "metrics": [
+    "macro F1",
+    "schema validity",
+    "latency p95",
+    "cost per successful case",
+    "judge agreement"
+  ],
+  "benchmark": {
+    "core_cases": 300,
+    "min_cases_per_intent": 15,
+    "required_confusion_intents": [
+      "card_arrival",
+      "card_delivery_estimate",
+      "pending_cash_withdrawal",
+      "declined_cash_withdrawal",
+      "cash_withdrawal_not_recognised",
+      "cash_withdrawal_charge",
+      "wrong_exchange_rate_for_cash_withdrawal",
+      "pending_card_payment",
+      "declined_card_payment",
+      "card_payment_not_recognised",
+      "reverted_card_payment",
+      "pending_top_up",
+      "top_up_reverted",
+      "top_up_failed",
+      "verify_top_up"
+    ],
+    "source_intent_aliases": {
+      "reverted_card_payment": "reverted_card_payment?"
+    },
+    "human_audit_cases": 30,
+    "smoke_fixture_is_not_benchmark": true
+  }
+}

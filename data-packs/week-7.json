@@ -1,0 +1,49 @@
+{
+  "week": 7,
+  "title": "Observed production workflow",
+  "dataset": "Twenty real runs from the Week 4 agent",
+  "source": "Learner-generated runs over the fixed project evaluation set",
+  "fixture": [
+    [
+      "run_id",
+      "operation",
+      "status"
+    ],
+    [
+      "run-001",
+      "retrieval",
+      "ok"
+    ],
+    [
+      "run-002",
+      "tool:fetch_document",
+      "error"
+    ],
+    [
+      "run-003",
+      "verification",
+      "ok"
+    ]
+  ],
+  "files": [
+    "infra/docker-compose.yml",
+    "monitoring/otel-config.yaml",
+    "monitoring/dashboard.json",
+    "reports/observability_report.md",
+    "tests/test_trace_contract.py"
+  ],
+  "metrics": [
+    "trace completeness",
+    "latency p50/p95",
+    "error rate",
+    "retry rate",
+    "tokens/request",
+    "cost/request"
+  ],
+  "benchmark": {
+    "minimum_cases": 20,
+    "artifact": "reports/observability_report.md",
+    "smoke_fixture_is_not_benchmark": true,
+    "real_data_command": "python scripts/fetch_data.py --cases 20"
+  }
+}

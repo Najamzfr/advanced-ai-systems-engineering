@@ -1,0 +1,9 @@
+{
+  "week": "4",
+  "dataset": "Held-out multi-hop questions from the Week 2 manifest",
+  "source": "local:week-2-eval.jsonl",
+  "status": "smoke_fixture_only",
+  "cases": 3,
+  "sha256": "smoke-fixture-not-a-benchmark",
+  "minimum_cases_for_grade": 25
+}

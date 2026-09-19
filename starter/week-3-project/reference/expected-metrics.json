@@ -1,0 +1,13 @@
+{
+  "week": 3,
+  "dataset": "smoke_fixture",
+  "minimum_cases": 20,
+  "required_metrics": [
+    "tool-selection accuracy",
+    "argument validity",
+    "successful completion rate",
+    "retry rate",
+    "duplicate-effect rate"
+  ],
+  "target": "Reference target: 20+ trajectories, valid arguments, two read tools, one controlled write, and zero duplicate effects in the fixture."
+}

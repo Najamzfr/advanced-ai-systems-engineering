@@ -1,0 +1,9 @@
+{
+  "week": "8",
+  "dataset": "Full evaluation, security and recovery packs",
+  "source": "local:course-release-manifest.json",
+  "status": "smoke_fixture_only",
+  "cases": 3,
+  "sha256": "smoke-fixture-not-a-benchmark",
+  "minimum_cases_for_grade": 150
+}

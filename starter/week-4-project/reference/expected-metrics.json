@@ -1,0 +1,14 @@
+{
+  "week": 4,
+  "dataset": "smoke_fixture",
+  "minimum_cases": 25,
+  "required_metrics": [
+    "task success",
+    "evidence completeness",
+    "unsupported-claim rate",
+    "model calls",
+    "token use",
+    "p95 latency"
+  ],
+  "target": "Reference target: 25 held-out multi-part questions, equal budgets, task success plus evidence completeness, and a documented complexity decision."
+}

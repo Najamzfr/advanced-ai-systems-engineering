@@ -1,0 +1,3 @@
+{"case_id":"smoke-001","input":"baseline case","expected":"ok"}
+{"case_id":"smoke-002","input":"failure boundary","expected":"bounded_failure"}
+{"case_id":"smoke-003","input":"recovery case","expected":"recovered"}
