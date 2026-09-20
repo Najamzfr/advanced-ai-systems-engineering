@@ -26,9 +26,11 @@
     ]
   ],
   "files": [
-    "infra/docker-compose.yml",
-    "monitoring/otel-config.yaml",
+    "docker-compose.yml",
+    "monitoring/otel-collector.yaml",
     "monitoring/dashboard.json",
+    "monitoring/grafana-datasources.yaml",
+    "monitoring/failure-injection.json",
     "reports/observability_report.md",
     "tests/test_trace_contract.py"
   ],
@@ -44,6 +46,6 @@
     "minimum_cases": 20,
     "artifact": "reports/observability_report.md",
     "smoke_fixture_is_not_benchmark": true,
-    "real_data_command": "python scripts/fetch_data.py --cases 20"
+    "real_data_command": "python scripts/fetch_data.py --cases 20 --from-week4 ../week-4-project"
   }
 }

@@ -1,5 +1,12 @@
-# Reference evidence
+# Retrieval ablation report
 
-Reference target: 200+ questions, six method rows, Recall@5/MRR@5 with denominators, and every citation linked to a document/page ID.
+Cases measured: 3
 
-Use this as a shape and denominator guide. Replace smoke values with your measured real-data run.
+- Recall@5: 1.0
+- MRR@5: 0.6667
+- citation precision: 1.0
+- answer correctness: 1.0
+- latency p95: 0.1989
+- token cost: 5e-05
+
+The answer-correctness value is an oracle-context control; it does not claim generation quality. Each method's raw rank and latency are retained in reports/results.jsonl.

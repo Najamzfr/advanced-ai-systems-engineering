@@ -1,5 +1,5 @@
 {
-  "week": "6",
+  "week": 6,
   "dataset": "Versioned labeled subset from Weeks 1–2",
   "source": "local:course-split-manifest.json",
   "status": "smoke_fixture_only",

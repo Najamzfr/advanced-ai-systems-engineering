@@ -1,0 +1,9 @@
+# Optional dependencies for the real-adapter completion route.
+# Install with: python -m pip install -r requirements-lora.txt
+torch>=2.2
+transformers>=4.42,<5
+peft>=0.11
+accelerate>=0.31
+safetensors>=0.4
+# Optional: enables `make run-qlora` on a compatible CUDA machine.
+bitsandbytes>=0.43; platform_system != "Darwin"

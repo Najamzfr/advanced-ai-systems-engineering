@@ -58,5 +58,18 @@ The metric file includes case count, macro-F1, schema validity, p95 latency,
 cost per successful case and judge agreement. Every metric carries its
 denominator and source configuration.
 
+Each run also writes `reports/judge_review_queue.jsonl`, containing 30 rows
+scored with the prompt in `evals/judge.py`. Treat it as a review queue: inspect
+each row, correct the judge label when needed, then save it as
+`data/judge_audit.jsonl` with `gold_label`, `model_label`, `judge_label`,
+`agree`, `reviewed_by`, `reviewed_at`, and a non-empty `review_note`. The
+grader links every audit row back to the recorded `robust-v2` prediction; it
+counts only this human-reviewed file, never the automatically generated queue.
+
+When you use an OpenAI-compatible provider, set the input/output price
+assumptions through `WEEK1_INPUT_COST_PER_1K_USD` and
+`WEEK1_OUTPUT_COST_PER_1K_USD`. The harness records that cost basis with every
+raw result; it does not invent provider billing data.
+
 BANKING77 is attributed to PolyAI and distributed under CC BY 4.0. Check the
 source terms before redistributing the downloaded records.

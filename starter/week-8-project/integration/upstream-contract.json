@@ -1,0 +1,17 @@
+{
+  "week": 8,
+  "consumes": [
+    {"week": 1, "evidence": "reports/metrics.json", "contract": "paired evaluation and model decision"},
+    {"week": 2, "evidence": "reports/metrics.json", "contract": "retrieval quality and citations"},
+    {"week": 3, "evidence": "reports/metrics.json", "contract": "tool trajectory and bounded calls"},
+    {"week": 4, "evidence": "reports/metrics.json", "contract": "plan execution and verification"},
+    {"week": 5, "evidence": "reports/metrics.json", "contract": "security attack and defense results"},
+    {"week": 6, "evidence": "reports/metrics.json", "contract": "quality, latency and cost benchmark"},
+    {"week": 7, "evidence": "reports/metrics.json", "contract": "traces, logs, SLO and failure evidence"}
+  ],
+  "live_runtime": {
+    "required_components": ["week2_retrieval", "week3_mcp", "week4_planner_executor", "week5_security", "week6_adapter", "week7_workflow"],
+    "rule": "Promotion requires each release row to contain live evidence from all six runtime components, a real Week 6 LoRA/QLoRA execution, and Week 7 trace evidence; saved results may materialize inputs but never substitute for execution."
+  },
+  "release_rule": "A missing upstream artifact or live runtime is a release limitation and must be named in final_report.md."
+}

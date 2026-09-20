@@ -1,14 +1,33 @@
 {
+  "schema_version": 1,
   "week": 8,
-  "dataset": "smoke_fixture",
-  "minimum_cases": 150,
-  "required_metrics": [
-    "release pass rate",
-    "quality under failure",
-    "recovery success",
-    "SLO compliance",
-    "cost per successful task",
-    "open limitations"
+  "run_mode": "release",
+  "required_fields": [
+    "cases",
+    "success_rate",
+    "latency_p95_ms",
+    "cost_per_successful_task",
+    "failure_matrix",
+    "observability",
+    "slo"
   ],
-  "target": "Reference target: 150+ release cases, evaluation/security/observability checks, injected failures and a reproducible deployment report."
+  "minimum_cases": 150,
+  "measured_reference": {
+    "cases": 150,
+    "success_rate": 1.0,
+    "latency_p50_ms": 0.313677,
+    "latency_p95_ms": 0.70314,
+    "cost_per_successful_task": 0.0000750667,
+    "failure_runs": 750,
+    "trace_count": 150,
+    "recovery_success_rate": 1.0
+  },
+  "required_failures": [
+    "model_unavailable",
+    "retrieval_down",
+    "tool_timeout",
+    "database_timeout",
+    "approval_timeout"
+  ],
+  "target": "release_pass=true with all five failure boundaries and trace_count equal to cases"
 }

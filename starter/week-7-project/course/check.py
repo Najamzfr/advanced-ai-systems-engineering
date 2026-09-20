@@ -1,63 +1,16 @@
-import argparse, json
+"""Deterministic Week 7 grader; recomputes evidence from raw workflow rows."""
+import argparse,json
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-MIN_CASES = 20
-REQUIRED_METRICS = ["trace completeness","latency p50/p95","error rate","retry rate","tokens/request","cost/request"]
-
-def evidence(passed, observed, required, message):
-    return {"passed": bool(passed), "observed": observed, "required": required, "message": message}
-
-def setup():
-    required = [ROOT/'data/manifest.json', ROOT/'data/sample.jsonl', ROOT/'project.py', ROOT/'reports']
-    missing = [str(x.relative_to(ROOT)) for x in required if not x.exists()]
-    if missing: raise SystemExit('Missing starter paths: ' + ', '.join(missing))
-    print('setup: ready; smoke fixture available; real benchmark not claimed')
-
-def load_state():
-    manifest_path=ROOT/'data/manifest.json'; metrics_path=ROOT/'reports/metrics.json'
-    manifest=json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
-    metrics=json.loads(metrics_path.read_text()) if metrics_path.exists() else {}
-    return manifest, metrics
-
+ROOT=Path(__file__).resolve().parents[1]; REQUIRED=['trace completeness','latency p50/p95','error rate','retry rate','tokens/request','cost/request']; MIN=20
+def read():
+ m=json.loads((ROOT/'data/manifest.json').read_text()) if (ROOT/'data/manifest.json').exists() else {}; x=json.loads((ROOT/'reports/metrics.json').read_text()) if (ROOT/'reports/metrics.json').exists() else {}; rs=[json.loads(x) for x in (ROOT/'reports/results.jsonl').read_text().splitlines()] if (ROOT/'reports/results.jsonl').exists() else []; return m,x,rs
+def ev(ok,obs,req,msg): return {'passed':bool(ok),'observed':obs,'required':req,'message':msg}
 def checks():
-    manifest, metrics = load_state()
-    artifact = ROOT/'reports/observability_report.md'
-    report_checks = {
-        'smoke_metrics': evidence(metrics.get('dataset') in {'smoke_fixture','real_data'} and 'cases' in metrics, metrics.get('dataset', 'missing'), 'metrics.json with dataset and cases', 'run make run'),
-        'real_data': evidence(manifest.get('status') == 'real_data', manifest.get('status', 'missing'), 'real_data', 'fetch the assigned real dataset'),
-        'minimum_cases': evidence(manifest.get('cases', 0) >= MIN_CASES, manifest.get('cases', 0), f'>= {MIN_CASES}', 'meet the declared minimum case count'),
-        'metrics_cases': evidence(metrics.get('cases', 0) >= MIN_CASES, metrics.get('cases', 0), f'>= {MIN_CASES}', 'run the real evaluation'),
-        'required_metrics': evidence(set(metrics.get('required_metrics', {})) == set(REQUIRED_METRICS), sorted(metrics.get('required_metrics', {})), REQUIRED_METRICS, 'write every week-specific metric key'),
-        'artifact': evidence(artifact.exists(), str(artifact.relative_to(ROOT)) if artifact.exists() else 'missing', str(artifact.relative_to(ROOT)), 'write the required report artifact'),
-    }
-    return report_checks
-
+ m,x,rs=read(); vals=x.get('required_metrics',{}); unique=len({r.get('run_id') for r in rs})==len(rs) and bool(rs); shape=all(r.get('trace_id') and len(r.get('spans',[]))>=5 and r.get('journal') for r in rs); telemetry=(ROOT/'reports/telemetry.ndjson').exists(); expected=sum(1 for r in rs if r.get('retry_count',0)>0); recorded=sum(1 for r in rs if any(e.get('event')=='retry_scheduled' for e in r.get('journal',[]))); imported=m.get('upstream_week')==4; provenance=all(r.get('source',{}).get('mode')=='imported_week4_planner_executor' and r.get('source',{}).get('source_id') and r.get('source',{}).get('live_execution') is True and r.get('source',{}).get('live_runtime',{}).get('runtime',{}).get('live_execution') is True and r.get('request_id')==r.get('run_id') for r in rs) if imported else True; source_spans=all({'planner.execute','executor.execute','verifier.check'}.issubset({s.get('name') for s in r.get('spans',[])}) for r in rs) if imported else True; measured=all(r.get('timing_mode')=='measured_wall_clock' and all(isinstance(s.get('duration_ms'),(int,float)) and s.get('duration_ms')>=0 for s in r.get('spans',[])) for r in rs)
+ return {'metrics_file':ev(bool(x),'present' if x else 'missing','reports/metrics.json','run make run'),'real_data':ev(m.get('status')=='real_data',m.get('status','missing'),'real_data','run the pinned fetch command'),'minimum_cases':ev(m.get('cases',0)>=MIN,m.get('cases',0),f'>= {MIN}','meet the run count'),'raw_results':ev(unique,len(rs),'unique run rows','preserve raw state'),'durable_shape':ev(shape,'journals, spans and statuses' if shape else 'missing durable evidence','journal + 5 spans per run','run the workflow'),'required_metrics':ev(set(vals)==set(REQUIRED),sorted(vals),REQUIRED,'write all observability metrics'),'numeric_metrics':ev(all(isinstance(v,(int,float)) or isinstance(v,list) for v in vals.values()),vals,'numeric values','recompute from raw rows'),'retry_evidence':ev(expected==recorded,{'expected':expected,'recorded':recorded},'same retry denominator','record retry events'),'telemetry_export':ev(telemetry,'reports/telemetry.ndjson','local telemetry audit copy','emit OTLP or local telemetry'),'provenance':ev(provenance,'Week 4 request IDs and source artifacts' if provenance else 'missing source provenance','preserve imported request IDs','run with --from-week4'),'source_runtime_spans':ev(source_spans,'planner, executor and verifier spans' if source_spans else 'missing Week 4 runtime spans','three source runtime spans per imported run','instrument imported runtime'),'measured_timing':ev(measured,'measured wall-clock span durations' if measured else 'fabricated or missing span timing','measured non-negative duration_ms','record span start/end'),'artifact':ev((ROOT/'reports/observability_report.md').exists() and (ROOT/'reports/observability_report.md').stat().st_size>300,'reports/observability_report.md','measured report','write the report')}
 def grade():
-    report_checks = checks()
-    errors=[f'{name}: {item["message"]}' for name,item in report_checks.items() if not item['passed']]
-    result={'status':'pass' if not errors else 'fail','summary':{'passed':sum(item['passed'] for item in report_checks.values()),'total':len(report_checks)},'checks':report_checks,'errors':errors}
-    (ROOT/'reports/grade.json').write_text(json.dumps(result,indent=2)+'\n')
-    if errors: raise SystemExit('GRADE FAIL\n- '+'\n- '.join(errors)+'\nMachine-readable result: reports/grade.json')
-    print('GRADE PASS\n- real data\n- minimum case count\n- required metrics\n- required artifact\nMachine-readable result: reports/grade.json')
-
-def check_step(step):
-    if step < 1 or step > 12: raise SystemExit('step must be between 1 and 12')
-    group=(step-1)//3
-    report_checks=checks()
-    if group == 0: names=['smoke_metrics']
-    elif group == 1: names=['real_data','minimum_cases']
-    elif group == 2: names=['required_metrics']
-    else: names=['artifact']
-    failures=[f'{name}: {report_checks[name]["message"]}' for name in names if not report_checks[name]['passed']]
-    if failures:
-        print('STEP FAIL')
-        for failure in failures: print('- '+failure)
-        raise SystemExit(1)
-    print(f'STEP PASS {step}: '+', '.join(names))
-
+ c=checks(); bad=[f'{k}: {v["message"]}' for k,v in c.items() if not v['passed']]; result={'status':'pass' if not bad else 'fail','summary':{'passed':sum(v['passed'] for v in c.values()),'total':len(c)},'checks':c,'errors':bad}; (ROOT/'reports/grade.json').write_text(json.dumps(result,indent=2)+'\n'); print(('GRADE PASS' if not bad else 'GRADE FAIL')+'\n'+json.dumps(result,indent=2)); raise SystemExit(1 if bad else 0)
+def step(n):
+ m,x,rs=read(); vals=x.get('required_metrics',{}); c=checks(); tests={1:bool(x and x.get('cases',0)>0),2:bool(x.get('methods')==['retrieval','model','tool','verification','approval']),3:bool(rs and all(len(r.get('spans',[]))>=5 for r in rs)),4:m.get('status')=='real_data',5:m.get('cases',0)>=MIN,6:x.get('cases')==len(rs) and len(rs)>=MIN,7:set(vals)==set(REQUIRED),8:all(isinstance(v,(int,float)) or isinstance(v,list) for v in vals.values()),9:len({r.get('run_id') for r in rs})==len(rs),10:c['provenance']['passed'] and c['source_runtime_spans']['passed'],11:c['telemetry_export']['passed'] and c['measured_timing']['passed'],12:c['artifact']['passed']}; ok=tests.get(n,False); print(f'STEP {"PASS" if ok else "FAIL"} {n}: observed {tests.get(n)}'); raise SystemExit(0 if ok else 1)
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(); parser.add_argument('command',choices=['setup','grade']+[f'check-step-{n}' for n in range(1,13)]); args=parser.parse_args()
-    if args.command=='setup': setup()
-    elif args.command=='grade': grade()
-    else: check_step(int(args.command.rsplit('-',1)[1]))
+ p=argparse.ArgumentParser(); p.add_argument('command'); a=p.parse_args(); grade() if a.command=='grade' else step(int(a.command.rsplit('-',1)[1])) if a.command.startswith('check-step-') else print('use grade or check-step-N')

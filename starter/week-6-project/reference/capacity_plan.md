@@ -1,5 +1,3 @@
-# Reference evidence
+# Capacity plan
 
-Reference target: 300+ labeled cases, leakage-free splits, six comparisons, and quality/latency/memory evidence.
-
-Use this as a shape and denominator guide. Replace smoke values with your measured real-data run.
+Use the measured condition table to choose the quality/latency point for the declared request mix. The offline adapter is a reference baseline; do not claim transformer-LoRA gains unless `adapter.executed` records that path.

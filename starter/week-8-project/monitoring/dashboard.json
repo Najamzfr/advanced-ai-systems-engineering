@@ -1,0 +1,1 @@
+{"title":"Week 8 release evidence","panels":["success_rate","latency_p95_ms","cost_per_successful_task","failure_recovery","trace_count"],"source":"reports/metrics.json"}

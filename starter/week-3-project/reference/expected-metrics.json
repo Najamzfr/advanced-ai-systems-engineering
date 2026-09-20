@@ -1,13 +1,16 @@
 {
-  "week": 3,
-  "dataset": "smoke_fixture",
-  "minimum_cases": 20,
-  "required_metrics": [
-    "tool-selection accuracy",
-    "argument validity",
-    "successful completion rate",
-    "retry rate",
-    "duplicate-effect rate"
-  ],
-  "target": "Reference target: 20+ trajectories, valid arguments, two read tools, one controlled write, and zero duplicate effects in the fixture."
+  "dataset": "real_data",
+  "cases": 20,
+  "methods": ["search_documents", "fetch_document", "store_result"],
+  "required_metrics": {
+    "tool-selection accuracy": 1.0,
+    "argument validity": 1.0,
+    "successful completion rate": 1.0,
+    "retry rate": 0.0,
+    "duplicate-effect rate": 0.0
+  },
+  "trajectory_denominator": 20,
+  "server_calls": 80,
+  "idempotency_checks": 20,
+  "reference_note": "Measured against 20 distinct Open-Meteo records; latency is environment-dependent and must be recomputed locally."
 }

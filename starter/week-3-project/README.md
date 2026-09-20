@@ -1,38 +1,32 @@
-# Week 3 · Bounded tool-using agent
+# Week 3 — Production bounded tool-using agent
 
-This starter runs immediately with a deterministic smoke fixture. The smoke
-run verifies the project contract; it is not evidence for the real assignment.
+This starter is an executable, offline-first reference for building a bounded
+agent that calls typed tools through an MCP-compatible JSON-RPC client. The
+runner starts `mcp_server.py` as a subprocess, discovers tools, validates
+arguments, retries one transient failure, and writes through an idempotency key.
+No trajectory is fabricated: `reports/results.jsonl` is emitted from the
+actual server responses.
 
 ```text
 make setup
-make run
-make test
-```
-
-Then fetch the assigned data and run the real check:
-
-```text
+make run                 # three local smoke cases
 python scripts/fetch_data.py --cases 20
-make evaluate
+make evaluate            # public Open-Meteo slice
+make test
 make grade
 ```
 
-The grader requires `data/eval.jsonl`, the declared minimum case count and a
-manifest marked `real_data`. It writes `reports/grade.json` so the course page
-can display the result without guessing from checkboxes.
+Verify the retry and idempotency boundary with one explicit, deterministic
+failure (it is never injected silently):
 
-Dataset: Open-Meteo responses plus Week 2 evidence fixtures  
-Source: https://api.open-meteo.com/v1/forecast  
-Minimum real cases: 20  
-Required artifact: `reports/agent_decision.md`
+```text
+python project.py --allow-sample --inject-one-failure
+```
 
-Required measurements: tool-selection accuracy, argument validity, successful completion rate, retry rate, duplicate-effect rate
+The public slice uses Open-Meteo current-weather responses for 20 distinct
+coordinates. Network failure is explicit; the fetcher never pads a dataset by
+repeating a response. The smoke fixture is intentionally not grade evidence.
 
-The starter exposes `make check-step-1` through `make check-step-12`. Each
-target reads `reports/metrics.json` and reports observed versus required
-values. `make grade` writes structured `reports/grade.json` evidence for the
-course importer.
-
-The included provider/runtime is intentionally small and deterministic. Extend
-it with the week’s actual system, preserve raw evidence, and document failures
-before claiming success.
+Required report: `reports/agent_decision.md`. Required metrics are computed
+from raw tool call evidence: tool-selection accuracy, argument validity,
+successful completion rate, retry rate, and duplicate-effect rate.

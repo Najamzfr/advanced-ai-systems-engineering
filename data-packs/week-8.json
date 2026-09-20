@@ -40,6 +40,6 @@
     "minimum_cases": 150,
     "artifact": "reports/release_report.json",
     "smoke_fixture_is_not_benchmark": true,
-    "real_data_command": "python scripts/fetch_data.py --cases 150"
+    "real_data_command": "python scripts/fetch_data.py --cases 150 --upstream-root ../course-work"
   }
 }

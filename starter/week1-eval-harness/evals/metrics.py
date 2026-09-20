@@ -25,12 +25,15 @@ def summarize(rows):
             "correct": sum(r["label"] == r["prediction"] for r in subset),
             "recall": round(sum(r["label"] == r["prediction"] for r in subset) / len(subset), 6),
         }
+    successful = [r for r in rows if r["label"] == r["prediction"]]
     return {
         "cases": len(rows),
         "macro_f1": macro_f1(rows),
         "schema_validity": round(sum(r["schema_valid"] for r in rows) / len(rows), 6) if rows else 0.0,
         "latency_p95_ms": latencies[p95_index] if latencies else None,
-        "cost_per_successful_case_usd": 0.0,
+        "cost_per_successful_case_usd": round(sum(float(r.get("cost_usd", 0.0)) for r in rows) / len(successful), 8) if successful else None,
+        "cost_denominator": len(successful),
+        "provider_counts": {name: sum(r.get("provider") == name for r in rows) for name in sorted({r.get("provider") for r in rows})},
         "per_intent": per_intent,
         "denominator": {"quality": len(rows), "schema": len(rows), "latency": len(rows)},
     }

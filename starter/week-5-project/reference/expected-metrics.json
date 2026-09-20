@@ -1,13 +1,16 @@
 {
-  "week": 5,
-  "dataset": "smoke_fixture",
-  "minimum_cases": 50,
-  "required_metrics": [
-    "attack success rate",
-    "benign task success",
-    "unauthorized tool-call rate",
-    "false refusal rate",
-    "recovery rate"
-  ],
-  "target": "Reference target: 50+ attacks, benign success denominator, attack success before/after, and one mitigation covered by regression tests."
+  "dataset": "real_data",
+  "cases": 50,
+  "attack_cases": 20,
+  "benign_controls": 30,
+  "required_metrics": {
+    "attack success rate before": 1.0,
+    "attack success rate after": 0.0,
+    "attack prevention rate": 1.0,
+    "benign task success": 1.0,
+    "unauthorized tool-call rate": 0.0,
+    "false refusal rate": 0.0,
+    "recovery rate": 1.0
+  },
+  "reference_note": "Measured against the fixed 20-attack, 30-benign-control pack."
 }

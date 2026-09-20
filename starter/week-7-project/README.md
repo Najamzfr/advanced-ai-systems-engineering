@@ -1,38 +1,53 @@
-# Week 7 · Observed production workflow
+# Week 7 — Durable, observable agent operations
 
-This starter runs immediately with a deterministic smoke fixture. The smoke
-run verifies the project contract; it is not evidence for the real assignment.
+Build a workflow that can restart safely, pause for approval, retry a transient failure, compensate a failed side effect, and leave a dead-letter record when recovery is impossible. The same runner emits OpenTelemetry traces, metrics and logs through OTLP/HTTP.
 
-```text
+## Quickstart
+
+```bash
 make setup
 make run
 make test
+make grade
 ```
 
-Then fetch the assigned data and run the real check:
+The smoke command runs the checked-in fixture. For the assignment dataset:
 
-```text
+```bash
 python scripts/fetch_data.py --cases 20
 make evaluate
 make grade
 ```
 
-The grader requires `data/eval.jsonl`, the declared minimum case count and a
-manifest marked `real_data`. It writes `reports/grade.json` so the course page
-can display the result without guessing from checkboxes.
+For the cumulative path, point the fetcher at the Week 4 project. The imported
+request ID is retained as the Week 7 run ID. During evaluation, Week 7 calls
+the live Week 4 `agent_runtime.py` for every request and emits planner,
+executor, and verifier spans around that call; the saved Week 4 result remains
+provenance for auditability:
 
-Dataset: Twenty real runs from the Week 4 agent  
-Source: local:week-4-traces.jsonl  
-Minimum real cases: 20  
-Required artifact: `reports/observability_report.md`
+```bash
+python scripts/fetch_data.py --cases 20 --from-week4 ../week-4-project
+python project.py --require-real-data --approve --from-week4 ../week-4-project
+```
 
-Required measurements: trace completeness, latency p50/p95, error rate, retry rate, tokens/request, cost/request
+`reports/results.jsonl` contains one durable state result per run. `state/<run_id>.json` contains the event journal and idempotency ledger. `reports/telemetry.ndjson` is an audit copy even when no collector is running.
 
-The starter exposes `make check-step-1` through `make check-step-12`. Each
-target reads `reports/metrics.json` and reports observed versus required
-values. `make grade` writes structured `reports/grade.json` evidence for the
-course importer.
+Imported runs contain `source.mode=imported_week4_planner_executor` and
+planner, executor, and verifier spans tied to the same request ID. Their span
+durations are measured by the Week 7 process; the Week 4 reported latency is
+kept only as source evidence. The course-owned fixture remains an explicit
+local fallback when no Week 4 artifact is supplied.
 
-The included provider/runtime is intentionally small and deterministic. Extend
-it with the week’s actual system, preserve raw evidence, and document failures
-before claiming success.
+## Grafana stack
+
+Start the local stack with `docker compose up -d`, then run `make evaluate` or `make telemetry`. Grafana is at `http://localhost:3000`; Prometheus is at `http://localhost:9090`. The runner posts to `http://localhost:4318/v1/{traces,metrics,logs}`. The dashboard uses the provisioned Tempo, Prometheus and Loki data sources.
+
+The stack is optional for grading: the local telemetry audit is mandatory, while OTLP delivery is recorded as best-effort so learners can complete the build without Docker.
+
+## Failure exercise
+
+`tool_timeout` and `model_timeout` cases produce an error span followed by a retry span and a recovery log. Cases requiring approval pause in `WAITING_APPROVAL` unless `--approve` is supplied. Every write is keyed by `case_id + step`; replaying a state journal produces an idempotency hit rather than a second effect.
+
+## Evidence standard
+
+Do not edit `reports/metrics.json` by hand. The checker recomputes case, trace, journal, retry and telemetry evidence from raw results. A dashboard screenshot is supplementary; the machine-readable report is the source of truth.

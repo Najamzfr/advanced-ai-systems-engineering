@@ -1,0 +1,7 @@
+reports/*.json
+reports/*.jsonl
+reports/*.md
+data/release.jsonl
+data/manifest.json
+.env
+__pycache__/

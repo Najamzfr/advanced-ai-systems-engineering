@@ -1,1 +1,1 @@
-"""Deterministic weekly project checker."""
+"""Week 5 local grading package."""

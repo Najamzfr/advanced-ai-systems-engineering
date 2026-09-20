@@ -39,6 +39,6 @@
     "minimum_cases": 25,
     "artifact": "reports/architecture_decision.md",
     "smoke_fixture_is_not_benchmark": true,
-    "real_data_command": "python scripts/fetch_data.py --cases 25"
+    "real_data_command": "python scripts/fetch_data.py --cases 25 --from-week2 ../week-2-project"
   }
 }

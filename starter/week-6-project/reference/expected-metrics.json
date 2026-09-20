@@ -1,14 +1,96 @@
 {
   "week": 6,
-  "dataset": "smoke_fixture",
-  "minimum_cases": 300,
-  "required_metrics": [
-    "task quality",
-    "data leakage checks",
-    "TTFT",
-    "tokens/sec",
-    "p95 latency",
-    "peak memory"
-  ],
-  "target": "Reference target: 300+ labeled cases, leakage-free splits, six comparisons, and quality/latency/memory evidence."
+  "dataset": {
+    "dataset": "PolyAI/banking77",
+    "source_url": "https://raw.githubusercontent.com/PolyAI-LDN/task-specific-datasets/master/banking_data/{split}.csv",
+    "license": "CC BY 4.0",
+    "splits": {
+      "train": "data/train.jsonl",
+      "test": "data/test.jsonl"
+    },
+    "fallback": "data/sample.jsonl",
+    "source_type": "public_download",
+    "sha256": {
+      "train": "4bfdfd0054b008262c8e3381b68411e20f5efd7bc095b68cd0e799be0a7d3ab5",
+      "test": "2f7f2a5abeea2162307093c5b2e2c82c981c403538a52c5248193a41f65a0940"
+    },
+    "counts": {
+      "train": 10003,
+      "test": 3020
+    },
+    "fetch_error": null
+  },
+  "train_cases": 10003,
+  "test_cases": 3020,
+  "conditions": {
+    "prompt": {
+      "cases": 20,
+      "accuracy": 0.0,
+      "macro_f1": 0.0,
+      "latency_p50_ms": 0.08574700041208416,
+      "latency_p95_ms": 0.14782799917156808,
+      "tokens_per_sec": 99474.20100820877,
+      "memory_mb": 0
+    },
+    "rag": {
+      "cases": 20,
+      "accuracy": 0.7,
+      "macro_f1": 0.8235294117647058,
+      "latency_p50_ms": 73.32680200124742,
+      "latency_p95_ms": 91.47561300051166,
+      "tokens_per_sec": 138.61076605444325,
+      "memory_mb": 0
+    },
+    "lora": {
+      "cases": 20,
+      "accuracy": 0.15,
+      "macro_f1": 0.2608695652173913,
+      "latency_p50_ms": 0.11659099982352927,
+      "latency_p95_ms": 0.2234860003227368,
+      "tokens_per_sec": 78023.66468345941,
+      "memory_mb": 0
+    },
+    "prompt_rag": {
+      "cases": 20,
+      "accuracy": 0.7,
+      "macro_f1": 0.8235294117647058,
+      "latency_p50_ms": 71.43457900019712,
+      "latency_p95_ms": 87.46066099774907,
+      "tokens_per_sec": 139.5208599552372,
+      "memory_mb": 0
+    },
+    "prompt_lora": {
+      "cases": 20,
+      "accuracy": 0.0,
+      "macro_f1": 0.0,
+      "latency_p50_ms": 0.08938499740906991,
+      "latency_p95_ms": 0.1164659988717176,
+      "tokens_per_sec": 103367.30871340583,
+      "memory_mb": 0
+    },
+    "rag_lora": {
+      "cases": 20,
+      "accuracy": 0.7,
+      "macro_f1": 0.8235294117647058,
+      "latency_p50_ms": 69.24979500035988,
+      "latency_p95_ms": 84.07625999825541,
+      "tokens_per_sec": 144.06431110358338,
+      "memory_mb": 0
+    }
+  },
+  "adapter": {
+    "requested": "LoRA/QLoRA",
+    "executed": "offline_hashed_adapter",
+    "rank": 8,
+    "is_transformer_lora": false
+  },
+  "leakage": {
+    "train_test_id_overlap": 0,
+    "train_test_text_overlap": 0,
+    "train_cases": 10003,
+    "test_cases": 3020,
+    "labels_train": 77,
+    "labels_test": 77
+  },
+  "run_mode": "benchmark"
 }

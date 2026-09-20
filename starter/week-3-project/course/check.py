@@ -1,63 +1,19 @@
-import argparse, json
+import argparse,json
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-MIN_CASES = 20
-REQUIRED_METRICS = ["tool-selection accuracy","argument validity","successful completion rate","retry rate","duplicate-effect rate"]
-
-def evidence(passed, observed, required, message):
-    return {"passed": bool(passed), "observed": observed, "required": required, "message": message}
-
-def setup():
-    required = [ROOT/'data/manifest.json', ROOT/'data/sample.jsonl', ROOT/'project.py', ROOT/'reports']
-    missing = [str(x.relative_to(ROOT)) for x in required if not x.exists()]
-    if missing: raise SystemExit('Missing starter paths: ' + ', '.join(missing))
-    print('setup: ready; smoke fixture available; real benchmark not claimed')
-
-def load_state():
-    manifest_path=ROOT/'data/manifest.json'; metrics_path=ROOT/'reports/metrics.json'
-    manifest=json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
-    metrics=json.loads(metrics_path.read_text()) if metrics_path.exists() else {}
-    return manifest, metrics
-
+ROOT=Path(__file__).resolve().parents[1]; MIN=20; REQUIRED=['tool-selection accuracy','argument validity','successful completion rate','retry rate','duplicate-effect rate']
+def read():
+ m=json.loads((ROOT/'data/manifest.json').read_text()) if (ROOT/'data/manifest.json').exists() else {}; x=json.loads((ROOT/'reports/metrics.json').read_text()) if (ROOT/'reports/metrics.json').exists() else {}; p=ROOT/'reports/results.jsonl'; rows=[json.loads(s) for s in p.read_text().splitlines() if s.strip()] if p.exists() else []; a=ROOT/'reports/agent_decision.md'; return m,x,rows,a
+def ev(ok,obs,req,msg): return {'passed':bool(ok),'observed':obs,'required':req,'message':msg}
 def checks():
-    manifest, metrics = load_state()
-    artifact = ROOT/'reports/agent_decision.md'
-    report_checks = {
-        'smoke_metrics': evidence(metrics.get('dataset') in {'smoke_fixture','real_data'} and 'cases' in metrics, metrics.get('dataset', 'missing'), 'metrics.json with dataset and cases', 'run make run'),
-        'real_data': evidence(manifest.get('status') == 'real_data', manifest.get('status', 'missing'), 'real_data', 'fetch the assigned real dataset'),
-        'minimum_cases': evidence(manifest.get('cases', 0) >= MIN_CASES, manifest.get('cases', 0), f'>= {MIN_CASES}', 'meet the declared minimum case count'),
-        'metrics_cases': evidence(metrics.get('cases', 0) >= MIN_CASES, metrics.get('cases', 0), f'>= {MIN_CASES}', 'run the real evaluation'),
-        'required_metrics': evidence(set(metrics.get('required_metrics', {})) == set(REQUIRED_METRICS), sorted(metrics.get('required_metrics', {})), REQUIRED_METRICS, 'write every week-specific metric key'),
-        'artifact': evidence(artifact.exists(), str(artifact.relative_to(ROOT)) if artifact.exists() else 'missing', str(artifact.relative_to(ROOT)), 'write the required report artifact'),
-    }
-    return report_checks
-
+ m,x,rows,a=read(); vals=x.get('required_metrics',{}); unique=len({r.get('case_id') for r in rows})==len(rows); trajectory=all(len(r.get('trajectory',[]))==4 and r.get('server_round_trip') for r in rows); numeric=all(isinstance(v,(int,float)) for v in vals.values()); discovered=all(set(r.get('discovered_tools',[]))=={'search_documents','fetch_document','store_result'} for r in rows)
+ return {'metrics_file':ev(bool(x),'present' if x else 'missing','reports/metrics.json','run make run'),'real_data':ev(m.get('status')=='real_data',m.get('status'),'real_data; run fetch_data.py','fetch public records'),'minimum_cases':ev(m.get('cases',0)>=MIN,m.get('cases',0),f'>= {MIN}','fetch at least 20 distinct records'),'raw_results':ev(bool(rows),len(rows), 'one row per case','run agent'),'unique_case_ids':ev(unique,len(rows),'all unique','preserve IDs'),'mcp_trajectory':ev(trajectory,'4 server-backed events' if trajectory else 'missing/short','search, fetch, store, idempotency retry','use MCP client'),'tool_discovery':ev(discovered,'discovered server allow-list' if discovered else 'missing discovery evidence','all three MCP tools discovered','use tools/list output before calls'),'required_metrics':ev(set(vals)==set(REQUIRED),sorted(vals),REQUIRED,'write all metrics'),'numeric_metrics':ev(numeric,vals,'numeric','derive from raw rows'),'denominator':ev(x.get('trajectory_denominator')==len(rows),(x.get('trajectory_denominator'),len(rows)),'equal case count','use same denominator'),'artifact':ev(a.exists() and a.stat().st_size>=180,str(a) if a.exists() else 'missing','measured report','write report'),'server_calls':ev(x.get('server_calls',0)>=len(rows)*4,x.get('server_calls',0),f'>= {len(rows)*4}','record calls'),'failure_boundary':ev('Boundary:' in (a.read_text() if a.exists() else ''),'documented','failure boundary','describe bounded scope')}
 def grade():
-    report_checks = checks()
-    errors=[f'{name}: {item["message"]}' for name,item in report_checks.items() if not item['passed']]
-    result={'status':'pass' if not errors else 'fail','summary':{'passed':sum(item['passed'] for item in report_checks.values()),'total':len(report_checks)},'checks':report_checks,'errors':errors}
-    (ROOT/'reports/grade.json').write_text(json.dumps(result,indent=2)+'\n')
-    if errors: raise SystemExit('GRADE FAIL\n- '+'\n- '.join(errors)+'\nMachine-readable result: reports/grade.json')
-    print('GRADE PASS\n- real data\n- minimum case count\n- required metrics\n- required artifact\nMachine-readable result: reports/grade.json')
-
-def check_step(step):
-    if step < 1 or step > 12: raise SystemExit('step must be between 1 and 12')
-    group=(step-1)//3
-    report_checks=checks()
-    if group == 0: names=['smoke_metrics']
-    elif group == 1: names=['real_data','minimum_cases']
-    elif group == 2: names=['required_metrics']
-    else: names=['artifact']
-    failures=[f'{name}: {report_checks[name]["message"]}' for name in names if not report_checks[name]['passed']]
-    if failures:
-        print('STEP FAIL')
-        for failure in failures: print('- '+failure)
-        raise SystemExit(1)
-    print(f'STEP PASS {step}: '+', '.join(names))
-
+ c=checks(); bad=[f'{k}: {v["message"]}' for k,v in c.items() if not v['passed']]; out={'status':'pass' if not bad else 'fail','summary':{'passed':sum(v['passed'] for v in c.values()),'total':len(c)},'checks':c,'errors':bad}; (ROOT/'reports/grade.json').write_text(json.dumps(out,indent=2)+'\n'); print(('GRADE PASS' if not bad else 'GRADE FAIL')+'\nMachine-readable result: reports/grade.json');
+ if bad: raise SystemExit(1)
+def setup(): print('setup: ready; MCP server and smoke fixture available')
+def step(n):
+ m,x,rows,a=read(); vals=x.get('required_metrics',{}); c={1:ev(x.get('methods')==['search_documents','fetch_document','store_result'],x.get('methods'),'typed tool allow-list','discover tools'),2:ev(bool(rows),len(rows),'raw trajectories','run agent'),3:ev(all(len(r.get('trajectory',[]))>=1 for r in rows),len(rows),'tool calls','call search'),4:ev(m.get('status')=='real_data',m.get('status'),'real_data','fetch records'),5:ev(m.get('cases',0)>=MIN,m.get('cases',0),f'>= {MIN}','meet case count'),6:ev(len(rows)==x.get('cases'),(len(rows),x.get('cases')),'equal denominator','re-run evaluation'),7:ev(set(vals)==set(REQUIRED),sorted(vals),REQUIRED,'all metric names'),8:ev(all(isinstance(v,(int,float)) for v in vals.values()),vals,'numeric','derive values'),9:ev(all(len(r.get('trajectory',[]))==4 and r.get('server_round_trip') and set(r.get('discovered_tools',[]))=={'search_documents','fetch_document','store_result'} for r in rows),'server-backed discovered trajectories','four events + MCP discovery','use MCP client'),10:ev(len({r.get('case_id') for r in rows})==len(rows),'unique IDs','unique IDs','preserve cases'),11:ev(a.exists() and a.stat().st_size>=180,a.stat().st_size if a.exists() else 0,'measured report','write report'),12:ev(not checks() or all(v['passed'] for v in checks().values()),'all checks','grade pass','complete report')}.get(n)
+ if not c['passed']: print(f'STEP FAIL {n}: {c["message"]}\n- observed: {c["observed"]}\n- required: {c["required"]}'); raise SystemExit(1)
+ print(f'STEP PASS {n}: {c["message"]}\n- observed: {c["observed"]}\n- required: {c["required"]}')
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(); parser.add_argument('command',choices=['setup','grade']+[f'check-step-{n}' for n in range(1,13)]); args=parser.parse_args()
-    if args.command=='setup': setup()
-    elif args.command=='grade': grade()
-    else: check_step(int(args.command.rsplit('-',1)[1]))
+ p=argparse.ArgumentParser(); p.add_argument('command',choices=['setup','grade']+[f'check-step-{i}' for i in range(1,13)]); a=p.parse_args(); setup() if a.command=='setup' else grade() if a.command=='grade' else step(int(a.command.rsplit('-',1)[1]))

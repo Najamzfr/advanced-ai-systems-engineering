@@ -1,0 +1,10 @@
+{
+  "scenario": "tool_timeout_after_retrieval",
+  "inject_at": "tool:fetch_document",
+  "expected": {
+    "trace_status": "error",
+    "retry_count": 1,
+    "approval_state": "pending",
+    "log_message": "tool timeout reconciled with run_id"
+  }
+}

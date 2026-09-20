@@ -1,9 +1,11 @@
 import argparse
 import json
+import os
 from pathlib import Path
 
 from .metrics import judge_agreement, summarize
 from .providers import available_models, predict
+from .judge import judge_case
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -36,13 +38,21 @@ def main():
         rows = []
         for case in cases:
             result = predict(model, case["text"])
-            rows.append({**case, "model": model, "prediction": result["label"], "schema_valid": result["schema_valid"], "latency_ms": result["latency_ms"]})
+            provider_result = {key: value for key, value in result.items() if key != "label"}
+            rows.append({**case, "model": model, "prediction": result["label"], **provider_result})
         predictions.extend(rows)
         summaries[model] = summarize(rows)
     (out_dir / "predictions.jsonl").write_text("\n".join(json.dumps(row) for row in predictions) + "\n")
+    (out_dir / "results.jsonl").write_text("\n".join(json.dumps(row) for row in predictions) + "\n")
     audit_path = ROOT / "data" / "judge_audit.jsonl"
     audit = load_jsonl(audit_path) if audit_path.exists() else []
-    metrics = {"dataset": data_mode, "models": summaries, "judge_agreement": judge_agreement(audit), "judge_denominator": len(audit)}
+    review_queue = []
+    for case in cases[:30]:
+        prediction = next((row["prediction"] for row in predictions if row["model"] == "robust-v2" and row["case_id"] == case["case_id"]), "unknown")
+        review_queue.append({"case_id": case["case_id"], "text": case["text"], "gold_label": case["label"], "model_label": prediction, **judge_case(case, prediction), "model": "robust-v2", "reviewed_by": "", "reviewed_at": "", "review_note": "", "review_status": "needs_human_review"})
+    (out_dir / "judge_review_queue.jsonl").write_text("\n".join(json.dumps(row) for row in review_queue) + "\n")
+    provider_modes = sorted({row.get("provider", "unknown") for row in predictions})
+    metrics = {"dataset": data_mode, "models": summaries, "judge_agreement": judge_agreement(audit), "judge_denominator": len(audit), "judge": {"prompt": "evals/judge.py:JUDGE_PROMPT", "mode": os.getenv("WEEK1_JUDGE", "offline"), "audit_source": str(audit_path.relative_to(ROOT)), "review_queue": "reports/judge_review_queue.jsonl", "human_review_required": True}, "provider_modes": provider_modes}
     (out_dir / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")
     print(json.dumps(metrics, indent=2))
 

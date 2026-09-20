@@ -1,5 +1,5 @@
 {
-  "week": "3",
+  "week": 3,
   "dataset": "Open-Meteo responses plus Week 2 evidence fixtures",
   "source": "https://api.open-meteo.com/v1/forecast",
   "status": "smoke_fixture_only",

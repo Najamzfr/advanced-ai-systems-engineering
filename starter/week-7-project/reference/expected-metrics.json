@@ -1,14 +1,15 @@
 {
-  "week": 7,
-  "dataset": "smoke_fixture",
-  "minimum_cases": 20,
-  "required_metrics": [
-    "trace completeness",
-    "latency p50/p95",
-    "error rate",
-    "retry rate",
-    "tokens/request",
-    "cost/request"
-  ],
-  "target": "Reference target: 20 real runs, complete traces, latency p95, retries, tokens, cost and one trace-plus-log failure investigation."
+  "dataset": "real_data",
+  "cases": 20,
+  "required_metrics": {
+    "trace completeness": 1.0,
+    "latency p50/p95": [10.718, 15.428],
+    "error rate": 0.15,
+    "retry rate": 0.5,
+    "tokens/request": 95.2,
+    "cost/request": 0.000476
+  },
+  "workflow_metrics": {"completed": 17, "dead_letter": 3, "compensated": 3, "idempotency_records": 91},
+  "telemetry": {"spans": 124, "logs": 133},
+  "reference_note": "Measured against 20 workflow runs with approval, retry, idempotency and dead-letter cases."
 }

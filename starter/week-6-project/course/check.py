@@ -1,63 +1,30 @@
-import argparse, json
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-MIN_CASES = 300
-REQUIRED_METRICS = ["task quality","data leakage checks","TTFT","tokens/sec","p95 latency","peak memory"]
-
-def evidence(passed, observed, required, message):
-    return {"passed": bool(passed), "observed": observed, "required": required, "message": message}
-
-def setup():
-    required = [ROOT/'data/manifest.json', ROOT/'data/sample.jsonl', ROOT/'project.py', ROOT/'reports']
-    missing = [str(x.relative_to(ROOT)) for x in required if not x.exists()]
-    if missing: raise SystemExit('Missing starter paths: ' + ', '.join(missing))
-    print('setup: ready; smoke fixture available; real benchmark not claimed')
-
-def load_state():
-    manifest_path=ROOT/'data/manifest.json'; metrics_path=ROOT/'reports/metrics.json'
-    manifest=json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
-    metrics=json.loads(metrics_path.read_text()) if metrics_path.exists() else {}
-    return manifest, metrics
-
-def checks():
-    manifest, metrics = load_state()
-    artifact = ROOT/'reports/adaptation_report.json'
-    report_checks = {
-        'smoke_metrics': evidence(metrics.get('dataset') in {'smoke_fixture','real_data'} and 'cases' in metrics, metrics.get('dataset', 'missing'), 'metrics.json with dataset and cases', 'run make run'),
-        'real_data': evidence(manifest.get('status') == 'real_data', manifest.get('status', 'missing'), 'real_data', 'fetch the assigned real dataset'),
-        'minimum_cases': evidence(manifest.get('cases', 0) >= MIN_CASES, manifest.get('cases', 0), f'>= {MIN_CASES}', 'meet the declared minimum case count'),
-        'metrics_cases': evidence(metrics.get('cases', 0) >= MIN_CASES, metrics.get('cases', 0), f'>= {MIN_CASES}', 'run the real evaluation'),
-        'required_metrics': evidence(set(metrics.get('required_metrics', {})) == set(REQUIRED_METRICS), sorted(metrics.get('required_metrics', {})), REQUIRED_METRICS, 'write every week-specific metric key'),
-        'artifact': evidence(artifact.exists(), str(artifact.relative_to(ROOT)) if artifact.exists() else 'missing', str(artifact.relative_to(ROOT)), 'write the required report artifact'),
-    }
-    return report_checks
-
-def grade():
-    report_checks = checks()
-    errors=[f'{name}: {item["message"]}' for name,item in report_checks.items() if not item['passed']]
-    result={'status':'pass' if not errors else 'fail','summary':{'passed':sum(item['passed'] for item in report_checks.values()),'total':len(report_checks)},'checks':report_checks,'errors':errors}
-    (ROOT/'reports/grade.json').write_text(json.dumps(result,indent=2)+'\n')
-    if errors: raise SystemExit('GRADE FAIL\n- '+'\n- '.join(errors)+'\nMachine-readable result: reports/grade.json')
-    print('GRADE PASS\n- real data\n- minimum case count\n- required metrics\n- required artifact\nMachine-readable result: reports/grade.json')
-
-def check_step(step):
-    if step < 1 or step > 12: raise SystemExit('step must be between 1 and 12')
-    group=(step-1)//3
-    report_checks=checks()
-    if group == 0: names=['smoke_metrics']
-    elif group == 1: names=['real_data','minimum_cases']
-    elif group == 2: names=['required_metrics']
-    else: names=['artifact']
-    failures=[f'{name}: {report_checks[name]["message"]}' for name in names if not report_checks[name]['passed']]
-    if failures:
-        print('STEP FAIL')
-        for failure in failures: print('- '+failure)
-        raise SystemExit(1)
-    print(f'STEP PASS {step}: '+', '.join(names))
-
-if __name__=='__main__':
-    parser=argparse.ArgumentParser(); parser.add_argument('command',choices=['setup','grade']+[f'check-step-{n}' for n in range(1,13)]); args=parser.parse_args()
-    if args.command=='setup': setup()
-    elif args.command=='grade': grade()
-    else: check_step(int(args.command.rsplit('-',1)[1]))
+from __future__ import annotations
+import json, pathlib, sys
+ROOT=pathlib.Path(__file__).resolve().parents[1]; R=ROOT/"reports"; D=ROOT/"data"
+def read():
+    p=R/"metrics.json"
+    if not p.exists(): raise SystemExit("FAIL: reports/metrics.json is missing; run make run")
+    return json.loads(p.read_text())
+def checks(m):
+    c=m.get("conditions",{}); leak=m.get("leakage",{}); rows=[json.loads(x) for x in (R/"results.jsonl").read_text().splitlines() if x.strip()] if (R/"results.jsonl").exists() else []
+    return [
+      ("train/test split is present and non-empty", m.get("train_cases",0)>0 and m.get("test_cases",0)>0),
+      ("all six named conditions were executed", set(c)>=set(("prompt","rag","lora","prompt_rag","prompt_lora","rag_lora"))),
+      ("raw result count equals condition case denominators", len(rows)==sum(v.get("cases",0) for v in c.values())),
+      ("raw result IDs are unique within each condition", len({(x.get("condition"),x.get("id")) for x in rows})==len(rows)),
+      ("metrics are derived numeric accuracy and macro-F1", all(isinstance(v.get("accuracy"), (int,float)) and isinstance(v.get("macro_f1"),(int,float)) for v in c.values())),
+      ("latency and throughput were measured", all(v.get("latency_p95_ms",0)>=0 and v.get("tokens_per_sec",0)>0 for v in c.values())),
+      ("no train/test ID or normalized text leakage", leak.get("train_test_id_overlap")==0 and leak.get("train_test_text_overlap")==0),
+      ("real PEFT LoRA or QLoRA was executed (fallback does not complete this step)", m.get("adapter",{}).get("executed") in ("transformers_peft_lora","transformers_peft_qlora") and m.get("adapter",{}).get("is_transformer_lora") is True and m.get("real_lora_complete") is True),
+      ("manifest records source provenance and checksums", bool(m.get("dataset",{}).get("source_type")) and bool(m.get("dataset",{}).get("sha256"))),
+      ("adaptation report exists", (R/"adaptation_report.md").exists() and (R/"adaptation_report.md").stat().st_size>200),
+      ("raw leakage evidence exists", (R/"leakage.json").exists()),
+      ("test denominator is at least 300 cases", m.get("test_cases",0)>=300),
+    ]
+def main():
+    if len(sys.argv)<2: raise SystemExit("usage: python -m course.check step N|grade")
+    m=read(); results=checks(m)
+    if sys.argv[1]=="step":
+        n=int(sys.argv[2]); ok=0<n<=len(results) and results[n-1][1]; print(("PASS" if ok else "FAIL")+f": step {n} — {results[n-1][0] if 0<n<=len(results) else 'unknown step'}"); raise SystemExit(0 if ok else 1)
+    failed=[f"{i+1}: {msg}" for i,(msg,ok) in enumerate(results) if not ok]; print("PASS: all Week 6 evidence checks" if not failed else "FAIL:\n"+"\n".join(failed)); raise SystemExit(0 if not failed else 1)
+if __name__=="__main__": main()

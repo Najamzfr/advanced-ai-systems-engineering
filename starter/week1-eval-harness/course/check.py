@@ -67,6 +67,43 @@ def check_grade():
     metrics = json.loads(metrics_path.read_text())
     manifest = json.loads(manifest_path.read_text())
     models = metrics.get("models", {})
+    evidence_path = ROOT / "reports/results.jsonl"
+    evidence_rows = []
+    if evidence_path.exists():
+        try:
+            evidence_rows = [json.loads(line) for line in evidence_path.read_text().splitlines() if line.strip()]
+        except json.JSONDecodeError:
+            errors.append("reports/results.jsonl contains invalid JSON")
+    expected_cases = manifest.get("cases", 0)
+    evidence_models = {row.get("model") for row in evidence_rows}
+    evidence_ids = {(row.get("model"), row.get("case_id")) for row in evidence_rows}
+    evidence_checks = {
+        "raw_evidence": evidence_path.exists() and len(evidence_rows) == expected_cases * 2 and evidence_models == {"baseline-v1", "robust-v2"},
+        "unique_paired_cases": len(evidence_ids) == len(evidence_rows) and all(row.get("case_id") for row in evidence_rows),
+        "derived_case_counts": all(values.get("cases") == sum(row.get("model") == model for row in evidence_rows) for model, values in models.items()),
+    }
+    audit_path = ROOT / "data/judge_audit.jsonl"
+    audit_rows = []
+    if audit_path.exists():
+        try:
+            audit_rows = [json.loads(line) for line in audit_path.read_text().splitlines() if line.strip()]
+        except json.JSONDecodeError:
+            errors.append("data/judge_audit.jsonl contains invalid JSON")
+    robust_by_case = {row.get("case_id"): row for row in evidence_rows if row.get("model") == "robust-v2"}
+    audit_required_fields = {"case_id", "gold_label", "model_label", "judge_label", "agree", "reviewed_by", "reviewed_at", "review_note"}
+    audit_ids = [row.get("case_id") for row in audit_rows]
+    audit_valid = bool(audit_rows) and len(audit_ids) == len(set(audit_ids)) and all(audit_required_fields <= set(row) for row in audit_rows)
+    audit_valid = audit_valid and all(
+        row.get("case_id") in robust_by_case
+        and row.get("gold_label") == robust_by_case[row["case_id"]].get("label")
+        and row.get("model_label") == robust_by_case[row["case_id"]].get("prediction")
+        and isinstance(row.get("agree"), bool)
+        and row.get("agree") == (row.get("judge_label") == row.get("gold_label"))
+        and str(row.get("reviewed_by", "")).strip()
+        and str(row.get("reviewed_at", "")).strip()
+        and str(row.get("review_note", "")).strip()
+        for row in audit_rows
+    )
     model_names = sorted(models)
     intent_counts = {}
     for model, values in models.items():
@@ -75,13 +112,16 @@ def check_grade():
     intent_observed = {model: {"minimum_count": min(counts.values(), default=0), "missing_or_short": [intent for intent, count in counts.items() if count < 15]} for model, counts in intent_counts.items()}
     intent_pass = set(models) == {"baseline-v1", "robust-v2"} and all(not values["missing_or_short"] for values in intent_observed.values())
     checks = {
+        "raw_evidence": evidence(evidence_checks["raw_evidence"], len(evidence_rows), expected_cases * 2, "reports/results.jsonl must contain one row per model and frozen case"),
+        "paired_evidence_ids": evidence(evidence_checks["unique_paired_cases"], len(evidence_ids), len(evidence_rows), "raw case IDs must be unique within each model"),
+        "metrics_derived_from_evidence": evidence(evidence_checks["derived_case_counts"], {k: v.get("cases") for k, v in models.items()}, "counts must match raw evidence", "reported case counts cannot be fabricated"),
         "real_data": evidence(manifest.get("status") == "real_data", manifest.get("status"), "real_data", "use the downloaded BANKING77 split"),
         "minimum_cases": evidence(manifest.get("cases", 0) >= 300, manifest.get("cases", 0), ">= 300", "frozen evaluation cases"),
         "paired_models": evidence(set(models) == {"baseline-v1", "robust-v2"}, model_names, ["baseline-v1", "robust-v2"], "evaluate both configurations"),
         "paired_case_counts": evidence(all(v.get("cases", 0) >= 300 for v in models.values()) and len(models) == 2, {k: v.get("cases", 0) for k, v in models.items()}, ">= 300 per model", "same frozen cases for both models"),
         "schema_validity": evidence(all(v.get("schema_validity", 0) == 1 for v in models.values()) and len(models) == 2, {k: v.get("schema_validity", 0) for k, v in models.items()}, "1.0 per model", "all structured outputs must validate"),
         "confusion_intent_coverage": evidence(intent_pass, intent_observed, {"minimum_each": 15, "intents": REQUIRED_CONFUSION_INTENTS}, "fixed confusion-prone BANKING77 slice"),
-        "judge_audit": evidence(metrics.get("judge_denominator", 0) >= 30, metrics.get("judge_denominator", 0), ">= 30", "human-reviewed judge calibration rows"),
+        "judge_audit": evidence(metrics.get("judge_denominator", 0) >= 30 and len(audit_rows) == metrics.get("judge_denominator", 0) and audit_valid, {"metric_denominator": metrics.get("judge_denominator", 0), "valid_rows": len(audit_rows) if audit_valid else 0}, ">= 30 linked, adjudicated rows", "audit rows must be linked to robust-v2 evidence and include reviewer, timestamp, and note"),
         "model_selection_report": report_quality(),
     }
     for name, item in checks.items():
@@ -109,11 +149,9 @@ def _load_metrics():
 def check_step(step):
     if step < 1 or step > 12:
         raise SystemExit("step must be between 1 and 12")
-    checkpoint = (step - 1) // 3 + 1
-    substep = (step - 1) % 3 + 1
-    step = checkpoint
     metrics = _load_metrics()
     models = metrics.get("models", {})
+    manifest = json.loads((ROOT / "data/manifest.json").read_text())
     errors = []
     if step == 1:
         required = {"baseline-v1", "robust-v2"}
@@ -125,7 +163,16 @@ def check_step(step):
             errors.append("each model needs a denominator object")
         label = "starter contract and smoke metrics"
     elif step == 2:
-        manifest = json.loads((ROOT / "data/manifest.json").read_text())
+        if not all(v.get("cases", 0) == 3 for v in models.values()): errors.append("smoke run must report three cases per model")
+        label = "equal smoke denominators"
+    elif step == 3:
+        if not (ROOT / "reports/predictions.jsonl").exists(): errors.append("reports/predictions.jsonl is missing")
+        if not (ROOT / "reports/results.jsonl").exists(): errors.append("reports/results.jsonl is missing")
+        else:
+            rows = [json.loads(line) for line in (ROOT / "reports/results.jsonl").read_text().splitlines() if line.strip()]
+            if len(rows) != sum(v.get("cases", 0) for v in models.values()): errors.append("raw results count must equal reported model case counts")
+        label = "raw provider results preserved"
+    elif step == 4:
         if manifest.get("status") != "real_data": errors.append("data/manifest.json status must be real_data")
         if manifest.get("cases", 0) < 300: errors.append("manifest cases must be at least 300")
         if metrics.get("dataset") != "banking77": errors.append("metrics dataset must be banking77")
@@ -135,24 +182,60 @@ def check_step(step):
             missing = [intent for intent in REQUIRED_CONFUSION_INTENTS if per_intent.get(intent, {}).get("cases", 0) < 15]
             if missing: errors.append(f"{model} is missing 15+ cases for: {', '.join(missing)}")
         label = "paired real-data evaluation and per-intent coverage"
-    elif step == 3:
+    elif step == 7:
         if any(set(v.get("denominator", {})) < {"quality", "schema", "latency"} for v in models.values()): errors.append("quality, schema and latency denominators are required")
+        label = "quality, schema and latency denominators"
+    elif step == 8:
+        if not (ROOT / "tests/test_contracts.py").exists(): errors.append("tests/test_contracts.py is missing")
+        label = "contract test files present"
+    elif step == 9:
+        if not (ROOT / "reports/results.jsonl").exists(): errors.append("raw results are missing")
+        else:
+            rows = [json.loads(line) for line in (ROOT / "reports/results.jsonl").read_text().splitlines() if line.strip()]
+            if len({(row.get("model"), row.get("case_id")) for row in rows}) != len(rows): errors.append("raw evidence has duplicate model/case pairs")
+            if any(not all(key in row for key in ("model", "case_id", "label", "prediction", "latency_ms", "provider")) for row in rows): errors.append("raw evidence rows are missing provider fields")
+        label = "raw failure evidence present"
+    elif step == 10:
+        audit_path = ROOT / "data/judge_audit.jsonl"
+        audit_required = {"case_id", "gold_label", "model_label", "judge_label", "agree", "reviewed_by", "reviewed_at", "review_note"}
+        try:
+            audit_rows = [json.loads(line) for line in audit_path.read_text().splitlines() if line.strip()] if audit_path.exists() else []
+        except json.JSONDecodeError:
+            audit_rows = []
+        if metrics.get("judge_denominator", 0) < 30 or len(audit_rows) != metrics.get("judge_denominator", 0): errors.append("judge audit must contain at least 30 rows and match judge_denominator")
+        if len({row.get("case_id") for row in audit_rows}) != len(audit_rows): errors.append("judge audit case_id values must be unique")
+        if not all(audit_required <= set(row) and str(row.get("reviewed_by", "")).strip() and str(row.get("reviewed_at", "")).strip() and str(row.get("review_note", "")).strip() for row in audit_rows): errors.append("judge audit rows need reviewer, timestamp, note, and adjudication fields")
+        label = "linked human judge audit evidence"
+    elif step == 11:
+        report = report_quality()
+        if not report["passed"]: errors.append("model_selection.md fails the deterministic structure/evidence contract")
+        label = "model-selection report quality"
+    else:
+        report = report_quality()
+        if metrics.get("judge_denominator", 0) < 30: errors.append("judge_denominator must be at least 30")
+        if not report["passed"]: errors.append("model_selection.md fails the deterministic structure/evidence contract")
+        label = "release decision and limitations"
+    if step in {5, 6}:
+        if metrics.get("dataset") != "banking77": errors.append("metrics dataset must be banking77")
+        if any(v.get("cases", 0) < 300 for v in models.values()): errors.append("both models need 300+ cases")
+        if step == 5: label = "paired model case counts"
+        else: label = "fixed confusion-intent coverage"
+        for model, values in models.items():
+            per_intent = values.get("per_intent", {})
+            missing = [intent for intent in REQUIRED_CONFUSION_INTENTS if per_intent.get(intent, {}).get("cases", 0) < 15]
+            if step == 6 and missing: errors.append(f"{model} is missing 15+ cases for: {', '.join(missing)}")
+    if step == 6:
         for model, values in models.items():
             per_intent = values.get("per_intent", {})
             missing = [intent for intent in REQUIRED_CONFUSION_INTENTS if per_intent.get(intent, {}).get("cases", 0) < 15]
             if missing: errors.append(f"{model} lacks the fixed confusion-intent coverage")
-        if not (ROOT / "tests/test_contracts.py").exists(): errors.append("tests/test_contracts.py is missing")
-        label = "complete metric denominators and contract coverage"
-    else:
-        if metrics.get("judge_denominator", 0) < 30: errors.append("judge_denominator must be at least 30")
-        report = report_quality()
-        if not report["passed"]: errors.append("model_selection.md fails the deterministic structure/evidence contract")
-        label = "calibrated judge evidence and model-selection report"
+    if step == 12:
+        if not (ROOT / "reports/grade.json").exists(): errors.append("reports/grade.json is missing; run make grade")
     if errors:
         print("STEP FAIL")
         for error in errors: print(f"- {error}")
         raise SystemExit(1)
-    print(f"STEP PASS {((checkpoint - 1) * 3) + substep}: {label} (sub-step {substep})")
+    print(f"STEP PASS {step}: {label}")
 
 
 def main():

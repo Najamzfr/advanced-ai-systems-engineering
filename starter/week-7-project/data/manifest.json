@@ -1,5 +1,5 @@
 {
-  "week": "7",
+  "week": 7,
   "dataset": "Twenty real runs from the Week 4 agent",
   "source": "local:week-4-traces.jsonl",
   "status": "smoke_fixture_only",

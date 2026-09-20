@@ -1,0 +1,2 @@
+# The reference path uses Python's standard library only.
+# Production adapters may add an SDK, but must preserve the evidence contract.

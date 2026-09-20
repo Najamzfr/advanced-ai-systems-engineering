@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "week1": {
     "commands": [
       "make setup",
@@ -26,12 +26,27 @@
     "commands": [
       "make setup",
       "make run",
-      "python -m course.check weekN"
+      "make evaluate",
+      "make grade"
     ],
     "required_reports": [
       "reports/metrics.json"
     ],
-    "minimum_cases": 20
+    "minimum_cases_by_week": {
+      "2": 200,
+      "3": 20,
+      "4": 25,
+      "5": 50,
+      "6": 300,
+      "7": 20,
+      "8": 150
+    },
+    "principles": [
+      "fixed data manifest",
+      "machine-readable metrics",
+      "failure evidence",
+      "reproducible command"
+    ]
   },
   "principles": [
     "fixed data manifest",

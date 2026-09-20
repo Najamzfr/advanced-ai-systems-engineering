@@ -1,3 +1,3 @@
-{"case_id":"smoke-001","input":"baseline case","expected":"ok"}
-{"case_id":"smoke-002","input":"failure boundary","expected":"bounded_failure"}
-{"case_id":"smoke-003","input":"recovery case","expected":"recovered"}
+{"case_id":"run-001","question":"What is the refund status?","failure_mode":"success","approval_required":false,"expected":"completed"}
+{"case_id":"run-002","question":"Fetch the account balance and reconcile it","failure_mode":"tool_timeout","approval_required":false,"expected":"completed_after_retry"}
+{"case_id":"run-003","question":"Send the customer export to the approved destination","failure_mode":"approval_required","approval_required":true,"expected":"approved_commit"}

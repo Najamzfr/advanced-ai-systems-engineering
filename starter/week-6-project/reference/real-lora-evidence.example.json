@@ -1,0 +1,22 @@
+{
+  "purpose": "Schema example only; do not present these placeholder values as a measured run.",
+  "adapter": {
+    "requested": "LoRA",
+    "executed": "transformers_peft_lora",
+    "is_transformer_lora": true,
+    "model": "local-or-huggingface-sequence-classification-model",
+    "rank": 4,
+    "quantized_4bit": false,
+    "train_limit": 64,
+    "train_seconds": "measured-number",
+    "runtime": {
+      "python": "measured-version",
+      "torch": "measured-version",
+      "transformers": "measured-version",
+      "peft": "measured-version",
+      "device": "measured-hardware"
+    }
+  },
+  "real_lora_complete": true,
+  "reproduce": "make install-lora && make run-lora && make grade"
+}

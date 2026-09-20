@@ -1,7 +1,7 @@
 {
-  "week": "8",
-  "dataset": "Full evaluation, security and recovery packs",
-  "source": "local:course-release-manifest.json",
+  "week": 8,
+  "dataset": "Full evaluation, security and recovery packs from Weeks 1–7 raw artifacts",
+  "source": "local:course-release-manifest.json + Week 1–7 reports/results.jsonl",
   "status": "smoke_fixture_only",
   "cases": 3,
   "sha256": "smoke-fixture-not-a-benchmark",

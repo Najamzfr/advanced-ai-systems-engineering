@@ -25,7 +25,11 @@ REQUIRED_CONFUSION_INTENTS = [
     "top_up_failed",
     "verify_top_up",
 ]
-SOURCE_INTENT_ALIASES = {"reverted_card_payment": "reverted_card_payment?"}
+SOURCE_INTENT_ALIASES = {"reverted_card_payment?": "reverted_card_payment"}
+
+def canonical_intent(label):
+    """Normalize the historical BANKING77 punctuation variant once at ingest."""
+    return label.strip().rstrip("?")
 
 
 def main():
@@ -40,8 +44,8 @@ def main():
     label_key = "category" if "category" in rows[0] else "label"
     buckets = defaultdict(list)
     for row in rows:
-        buckets[row[label_key]].append(row[text_key])
-    missing = [label for label in REQUIRED_CONFUSION_INTENTS if SOURCE_INTENT_ALIASES.get(label, label) not in buckets]
+        buckets[canonical_intent(row[label_key])].append(row[text_key])
+    missing = [label for label in REQUIRED_CONFUSION_INTENTS if label not in buckets]
     if missing:
         raise SystemExit("BANKING77 source is missing required confusion intents: " + ", ".join(missing))
     selected = []
@@ -49,8 +53,7 @@ def main():
         label for label in sorted(buckets) if label not in REQUIRED_CONFUSION_INTENTS
     ]
     for label in ordered_labels:
-        source_label = SOURCE_INTENT_ALIASES.get(label, label)
-        for text in buckets[source_label][: args.min_per_intent]:
+        for text in buckets[label][: args.min_per_intent]:
             selected.append({"case_id": f"banking77-{len(selected)+1:04d}", "text": text, "label": label})
     if len(selected) < args.cases:
         raise SystemExit(f"Source only yielded {len(selected)} cases at the requested per-intent floor")
@@ -60,7 +63,7 @@ def main():
     (data_dir / "eval.jsonl").write_text("\n".join(json.dumps(row) for row in selected) + "\n")
     digest = hashlib.sha256((data_dir / "eval.jsonl").read_bytes()).hexdigest()
     intent_counts = {label: sum(row["label"] == label for row in selected) for label in REQUIRED_CONFUSION_INTENTS}
-    manifest = {"dataset": "BANKING77", "source": args.url, "license": "CC BY 4.0", "split": "train", "status": "real_data", "cases": len(selected), "sha256": digest, "minimum_cases_for_grade": 300, "minimum_cases_per_intent": args.min_per_intent, "required_confusion_intents": REQUIRED_CONFUSION_INTENTS, "source_intent_aliases": SOURCE_INTENT_ALIASES, "required_intent_counts": intent_counts}
+    manifest = {"dataset": "BANKING77", "source": args.url, "license": "CC BY 4.0", "split": "train", "status": "real_data", "cases": len(selected), "sha256": digest, "minimum_cases_for_grade": 300, "minimum_cases_per_intent": args.min_per_intent, "required_confusion_intents": REQUIRED_CONFUSION_INTENTS, "source_intent_aliases": SOURCE_INTENT_ALIASES, "canonicalization": "strip trailing '?' from historical source labels", "required_intent_counts": intent_counts}
     (data_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     print(json.dumps(manifest, indent=2))
 

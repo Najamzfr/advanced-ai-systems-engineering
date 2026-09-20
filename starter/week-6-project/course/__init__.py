@@ -1,1 +1,1 @@
-"""Deterministic weekly project checker."""
+"""Week 6 evidence checker."""

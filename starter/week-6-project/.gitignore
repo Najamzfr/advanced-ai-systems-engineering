@@ -1,0 +1,7 @@
+data/train.jsonl
+data/test.jsonl
+reports/*.json
+reports/*.md
+__pycache__/
+course/__pycache__/
+scripts/__pycache__/

@@ -1,63 +1,56 @@
-import argparse, json
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-MIN_CASES = 150
-REQUIRED_METRICS = ["release pass rate","quality under failure","recovery success","SLO compliance","cost per successful task","open limitations"]
-
-def evidence(passed, observed, required, message):
-    return {"passed": bool(passed), "observed": observed, "required": required, "message": message}
-
-def setup():
-    required = [ROOT/'data/manifest.json', ROOT/'data/sample.jsonl', ROOT/'project.py', ROOT/'reports']
-    missing = [str(x.relative_to(ROOT)) for x in required if not x.exists()]
-    if missing: raise SystemExit('Missing starter paths: ' + ', '.join(missing))
-    print('setup: ready; smoke fixture available; real benchmark not claimed')
-
-def load_state():
-    manifest_path=ROOT/'data/manifest.json'; metrics_path=ROOT/'reports/metrics.json'
-    manifest=json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
-    metrics=json.loads(metrics_path.read_text()) if metrics_path.exists() else {}
-    return manifest, metrics
-
-def checks():
-    manifest, metrics = load_state()
-    artifact = ROOT/'reports/release_report.json'
-    report_checks = {
-        'smoke_metrics': evidence(metrics.get('dataset') in {'smoke_fixture','real_data'} and 'cases' in metrics, metrics.get('dataset', 'missing'), 'metrics.json with dataset and cases', 'run make run'),
-        'real_data': evidence(manifest.get('status') == 'real_data', manifest.get('status', 'missing'), 'real_data', 'fetch the assigned real dataset'),
-        'minimum_cases': evidence(manifest.get('cases', 0) >= MIN_CASES, manifest.get('cases', 0), f'>= {MIN_CASES}', 'meet the declared minimum case count'),
-        'metrics_cases': evidence(metrics.get('cases', 0) >= MIN_CASES, metrics.get('cases', 0), f'>= {MIN_CASES}', 'run the real evaluation'),
-        'required_metrics': evidence(set(metrics.get('required_metrics', {})) == set(REQUIRED_METRICS), sorted(metrics.get('required_metrics', {})), REQUIRED_METRICS, 'write every week-specific metric key'),
-        'artifact': evidence(artifact.exists(), str(artifact.relative_to(ROOT)) if artifact.exists() else 'missing', str(artifact.relative_to(ROOT)), 'write the required report artifact'),
-    }
-    return report_checks
-
-def grade():
-    report_checks = checks()
-    errors=[f'{name}: {item["message"]}' for name,item in report_checks.items() if not item['passed']]
-    result={'status':'pass' if not errors else 'fail','summary':{'passed':sum(item['passed'] for item in report_checks.values()),'total':len(report_checks)},'checks':report_checks,'errors':errors}
-    (ROOT/'reports/grade.json').write_text(json.dumps(result,indent=2)+'\n')
-    if errors: raise SystemExit('GRADE FAIL\n- '+'\n- '.join(errors)+'\nMachine-readable result: reports/grade.json')
-    print('GRADE PASS\n- real data\n- minimum case count\n- required metrics\n- required artifact\nMachine-readable result: reports/grade.json')
-
-def check_step(step):
-    if step < 1 or step > 12: raise SystemExit('step must be between 1 and 12')
-    group=(step-1)//3
-    report_checks=checks()
-    if group == 0: names=['smoke_metrics']
-    elif group == 1: names=['real_data','minimum_cases']
-    elif group == 2: names=['required_metrics']
-    else: names=['artifact']
-    failures=[f'{name}: {report_checks[name]["message"]}' for name in names if not report_checks[name]['passed']]
-    if failures:
-        print('STEP FAIL')
-        for failure in failures: print('- '+failure)
-        raise SystemExit(1)
-    print(f'STEP PASS {step}: '+', '.join(names))
-
+"""Evidence-derived Week 8 checker. It never trusts a learner-provided pass flag."""
+from __future__ import annotations
+import json, pathlib, sys
+ROOT=pathlib.Path(__file__).resolve().parents[1]; DATA=ROOT/'data'; REPORTS=ROOT/'reports'
+def load(name):
+    p=REPORTS/name
+    if not p.exists(): raise AssertionError(f'missing {p}')
+    return json.loads(p.read_text())
+def check(step):
+    if step==1:
+        for p in ('Dockerfile','docker-compose.yml','serve.py','RELEASE.md','integration/deployment-contract.json'): assert (ROOT/p).exists(),f'missing {p}'
+        print('PASS: release contract and smoke stack are ready'); return
+    metrics=load('metrics.json'); report=load('release_report.json')
+    if step==2:
+        assert metrics.get('cases',0)>0,'metrics cases missing'; assert metrics.get('execution',{}).get('mode') in ('smoke_fixture','live_coursework'),'execution mode missing'; print('PASS: release metrics are present and labelled'); return
+    if step==3:
+        manifest=json.loads((DATA/'manifest.json').read_text()); assert manifest.get('status')=='materialized','materialized manifest required'; assert metrics['cases']>=150,'need 150 release cases'; assert report['checks']['evaluation_cases']==metrics['cases'],'case denominator mismatch'; print(f"PASS: release case count and manifest are valid ({metrics['cases']})"); return
+    if step==4:
+        assert (REPORTS/'results.jsonl').exists(),'raw release results missing'; rows=[json.loads(x) for x in (REPORTS/'results.jsonl').read_text().splitlines() if x.strip()]; assert len(rows)==metrics['cases'],'raw/result denominator mismatch'; print('PASS: raw release evidence matches metrics denominator'); return
+    if step==5:
+        assert set(metrics['failure_matrix'])=={'model_unavailable','retrieval_down','tool_timeout','database_timeout','approval_timeout'},'failure matrix incomplete'; assert metrics['observability']['trace_count']==metrics['cases'],'trace denominator mismatch'; assert 'latency_p95_ms' in metrics and 'cost_per_successful_task' in metrics,'SLO metrics missing'; print('PASS: failure matrix, traces and SLO fields are present'); return
+    if step==6:
+        assert all(isinstance(x.get('recovery_success_rate'),(int,float)) for x in metrics['failure_matrix'].values()),'recovery metrics missing'; print('PASS: recovery rates are numeric and derived'); return
+    if step==7:
+        assert metrics['observability']['trace_count']==metrics['cases'],'trace count mismatch'; print('PASS: one trace is recorded per release case'); return
+    if step==8:
+        assert all(k in metrics['slo'] for k in ('latency_pass','cost_pass')),'SLO decisions missing'; print('PASS: latency and cost SLO decisions are present'); return
+    if step==9:
+        rows=[json.loads(x) for x in (REPORTS/'results.jsonl').read_text().splitlines() if x.strip()]
+        assert all('failure' in x and 'trace_id' in x for x in rows),'raw trace fields missing'
+        if metrics.get('execution',{}).get('mode')=='live_coursework':
+            required={'retrieval','mcp','agent','security','adaptation','workflow'}
+            assert all(x.get('execution_mode')=='live_coursework' and required.issubset(x.get('components',{})) for x in rows),'release rows did not execute all six live components'
+            assert all(x['components']['agent'].get('runtime',{}).get('live_execution') for x in rows),'Week 4 agent runtime was not live'
+            assert all(x['components']['mcp'].get('server_round_trip') for x in rows),'Week 3 MCP runtime was not live'
+            assert all(x['components']['adaptation'].get('live_execution') and x['components']['adaptation'].get('real_lora_complete') for x in rows),'Week 6 real LoRA runtime was not live'
+            assert all(x['components']['workflow'].get('trace_id')==x['trace_id'] for x in rows),'Week 7 trace provenance mismatch'
+        print('PASS: raw rows include trace and live-component evidence'); return
+    if step==10:
+        assert (ROOT/'monitoring/dashboard.json').exists(),'dashboard export missing'; print('PASS: dashboard export is present'); return
+    if step==11:
+        upstream=json.loads((ROOT/'integration/upstream-contract.json').read_text()); assert len(upstream['consumes'])==7,'Weeks 1-7 integration contract incomplete'; evidence=json.loads((DATA/'upstream-evidence.json').read_text()); weeks=evidence.get('weeks',[]); assert len(weeks)==7,'real upstream evidence missing; fetch with --upstream-root'; assert {x.get('domain') for x in weeks}=={'evaluation','retrieval','tools','planning','security','adaptation','observability'},'domain evidence is incomplete'; assert all(x.get('raw_case_count',0)>0 and x.get('artifacts') for x in weeks),'raw upstream artifacts missing'; assert metrics.get('upstream_execution',{}).get('rows_materialized',0)==metrics['cases'],'release rows were not materialized from upstream'; assert metrics.get('execution',{}).get('mode')=='live_coursework','promotion requires live component execution'; print('PASS: upstream contract, raw artifacts and seven live prior-week domains are present'); return
+    if step==12:
+        assert report['release_pass'] is True,'release checks are not passing'; final=(REPORTS/'final_report.md').read_text(); assert 'Limits' in final and len(final)>250,'final defense is too thin'; print('PASS: final report and release decision are complete'); return
+    raise AssertionError('unknown step')
+def main():
+    target=sys.argv[1] if len(sys.argv)>1 else 'grade'
+    if target=='setup': print('PASS: release contract ready'); return
+    if target=='grade':
+        for i in range(1,13): check(i)
+        print('GRADE PASS: Week 8 release evidence is complete'); return
+    if target.startswith('check-step-'): check(int(target.rsplit('-',1)[1])); return
+    raise SystemExit(f'unknown target: {target}')
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(); parser.add_argument('command',choices=['setup','grade']+[f'check-step-{n}' for n in range(1,13)]); args=parser.parse_args()
-    if args.command=='setup': setup()
-    elif args.command=='grade': grade()
-    else: check_step(int(args.command.rsplit('-',1)[1]))
+    try: main()
+    except (AssertionError,FileNotFoundError,KeyError) as e: print(f'FAIL: {e}'); raise SystemExit(1)

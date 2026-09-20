@@ -1,14 +1,53 @@
 {
-  "week": 2,
-  "dataset": "smoke_fixture",
-  "minimum_cases": 200,
-  "required_metrics": [
-    "Recall@5",
-    "MRR@5",
-    "citation precision",
-    "answer correctness",
-    "latency p95",
-    "token cost"
+  "dataset": "real_data",
+  "cases": 200,
+  "methods": [
+    "bm25",
+    "dense",
+    "hybrid",
+    "hybrid_rerank",
+    "document_level",
+    "long_context"
   ],
-  "target": "Reference target: 200+ questions, six method rows, Recall@5/MRR@5 with denominators, and every citation linked to a document/page ID."
+  "raw_results": "reports/results.jsonl",
+  "required_metrics": {
+    "Recall@5": 0.32,
+    "MRR@5": 0.1792,
+    "citation precision": 0.32,
+    "answer correctness": 0.86,
+    "latency p95": 24.5411,
+    "token cost": 0.0074388
+  },
+  "method_rows": {
+    "bm25": {
+      "cases": 200,
+      "recall_at_5": 0.445,
+      "mrr_at_5": 0.2655
+    },
+    "dense": {
+      "cases": 200,
+      "recall_at_5": 0.325,
+      "mrr_at_5": 0.1982
+    },
+    "hybrid": {
+      "cases": 200,
+      "recall_at_5": 0.415,
+      "mrr_at_5": 0.2556
+    },
+    "hybrid_rerank": {
+      "cases": 200,
+      "recall_at_5": 0.32,
+      "mrr_at_5": 0.1792
+    },
+    "document_level": {
+      "cases": 200,
+      "recall_at_5": 0.41,
+      "mrr_at_5": 0.2397
+    },
+    "long_context": {
+      "cases": 200,
+      "recall_at_5": 0.38,
+      "mrr_at_5": 0.2177
+    }
+  }
 }

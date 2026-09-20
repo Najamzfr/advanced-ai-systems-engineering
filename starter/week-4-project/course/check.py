@@ -1,63 +1,24 @@
-import argparse, json
+import argparse,json
 from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-MIN_CASES = 25
-REQUIRED_METRICS = ["task success","evidence completeness","unsupported-claim rate","model calls","token use","p95 latency"]
-
-def evidence(passed, observed, required, message):
-    return {"passed": bool(passed), "observed": observed, "required": required, "message": message}
-
-def setup():
-    required = [ROOT/'data/manifest.json', ROOT/'data/sample.jsonl', ROOT/'project.py', ROOT/'reports']
-    missing = [str(x.relative_to(ROOT)) for x in required if not x.exists()]
-    if missing: raise SystemExit('Missing starter paths: ' + ', '.join(missing))
-    print('setup: ready; smoke fixture available; real benchmark not claimed')
-
-def load_state():
-    manifest_path=ROOT/'data/manifest.json'; metrics_path=ROOT/'reports/metrics.json'
-    manifest=json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
-    metrics=json.loads(metrics_path.read_text()) if metrics_path.exists() else {}
-    return manifest, metrics
-
+ROOT=Path(__file__).resolve().parents[1]; MIN_CASES=25
+REQ={'task success','evidence completeness','unsupported-claim rate','mean model/tool calls','p95 latency ms','recovery rate','budget compliance'}
+def load():
+ m=json.loads((ROOT/'data/manifest.json').read_text()) if (ROOT/'data/manifest.json').exists() else {}
+ x=json.loads((ROOT/'reports/metrics.json').read_text()) if (ROOT/'reports/metrics.json').exists() else {}
+ rs=[json.loads(z) for z in (ROOT/'reports/results.jsonl').read_text().splitlines()] if (ROOT/'reports/results.jsonl').exists() else []
+ return m,x,rs
+def ev(ok,obs,req,msg): return {'passed':bool(ok),'observed':obs,'required':req,'message':msg}
 def checks():
-    manifest, metrics = load_state()
-    artifact = ROOT/'reports/architecture_decision.md'
-    report_checks = {
-        'smoke_metrics': evidence(metrics.get('dataset') in {'smoke_fixture','real_data'} and 'cases' in metrics, metrics.get('dataset', 'missing'), 'metrics.json with dataset and cases', 'run make run'),
-        'real_data': evidence(manifest.get('status') == 'real_data', manifest.get('status', 'missing'), 'real_data', 'fetch the assigned real dataset'),
-        'minimum_cases': evidence(manifest.get('cases', 0) >= MIN_CASES, manifest.get('cases', 0), f'>= {MIN_CASES}', 'meet the declared minimum case count'),
-        'metrics_cases': evidence(metrics.get('cases', 0) >= MIN_CASES, metrics.get('cases', 0), f'>= {MIN_CASES}', 'run the real evaluation'),
-        'required_metrics': evidence(set(metrics.get('required_metrics', {})) == set(REQUIRED_METRICS), sorted(metrics.get('required_metrics', {})), REQUIRED_METRICS, 'write every week-specific metric key'),
-        'artifact': evidence(artifact.exists(), str(artifact.relative_to(ROOT)) if artifact.exists() else 'missing', str(artifact.relative_to(ROOT)), 'write the required report artifact'),
-    }
-    return report_checks
-
+ m,x,rs=load(); vals=x.get('required_metrics',{}); modes={'single_agent','planner_executor','specialist_decomposition'}
+ distinct=len({r.get('case_id') for r in rs})==len(rs) and len(rs)==x.get('cases',-1)
+ shape=all(set(r.get('architectures',{}))>=modes and all('plan' in r['architectures'][z] and 'verification' in r['architectures'][z] for z in modes) for r in rs)
+ graph=all(all(node.get('depends_on') is not None for node in r['architectures']['planner_executor']['plan']['nodes']) for r in rs)
+ derived=shape and graph and distinct and all(r['architectures']['planner_executor']['execution']['calls']<=8 for r in rs)
+ return {'metrics_file':ev(bool(x),'present' if x else 'missing','reports/metrics.json','run make run'),'real_data':ev(m.get('status')=='real_data',m.get('status'),'real_data','run make setup'),'minimum_cases':ev(m.get('cases',0)>=MIN_CASES,m.get('cases',0),f'>= {MIN_CASES}','materialise at least 20 cases'),'raw_evidence':ev(bool(rs),len(rs),'reports/results.jsonl','preserve raw evidence'),'unique_cases':ev(distinct,len({r.get("case_id") for r in rs}),x.get('cases'),'unique rows equal reported cases'),'week4_contract':ev(shape,'planner, executor, verifier, specialist','all architecture outputs','run project.py'),'dependency_graph':ev(graph,'dependency lists present','every plan node has dependencies','run project.py'),'derived_execution':ev(derived,'calls and verification computed from raw rows','bounded calls and verification','do not hardcode metrics'),'required_metrics':ev(set(vals)==REQ,sorted(vals),sorted(REQ),'write all required metrics'),'report':ev((ROOT/'reports/planning_report.md').exists() and (ROOT/'reports/planning_report.md').stat().st_size>250,'planning_report.md','measured report','write the report')}
 def grade():
-    report_checks = checks()
-    errors=[f'{name}: {item["message"]}' for name,item in report_checks.items() if not item['passed']]
-    result={'status':'pass' if not errors else 'fail','summary':{'passed':sum(item['passed'] for item in report_checks.values()),'total':len(report_checks)},'checks':report_checks,'errors':errors}
-    (ROOT/'reports/grade.json').write_text(json.dumps(result,indent=2)+'\n')
-    if errors: raise SystemExit('GRADE FAIL\n- '+'\n- '.join(errors)+'\nMachine-readable result: reports/grade.json')
-    print('GRADE PASS\n- real data\n- minimum case count\n- required metrics\n- required artifact\nMachine-readable result: reports/grade.json')
-
-def check_step(step):
-    if step < 1 or step > 12: raise SystemExit('step must be between 1 and 12')
-    group=(step-1)//3
-    report_checks=checks()
-    if group == 0: names=['smoke_metrics']
-    elif group == 1: names=['real_data','minimum_cases']
-    elif group == 2: names=['required_metrics']
-    else: names=['artifact']
-    failures=[f'{name}: {report_checks[name]["message"]}' for name in names if not report_checks[name]['passed']]
-    if failures:
-        print('STEP FAIL')
-        for failure in failures: print('- '+failure)
-        raise SystemExit(1)
-    print(f'STEP PASS {step}: '+', '.join(names))
-
+ c=checks(); errors=[f'{k}: {v["message"]}' for k,v in c.items() if not v['passed']]; result={'status':'pass' if not errors else 'fail','checks':c,'summary':{'passed':sum(v['passed'] for v in c.values()),'total':len(c)},'errors':errors}; (ROOT/'reports/grade.json').write_text(json.dumps(result,indent=2)+'\n'); print('GRADE PASS' if not errors else 'GRADE FAIL');
+ if errors: raise SystemExit(1)
+def step(i):
+ c=checks(); keys=['metrics_file','real_data','minimum_cases','raw_evidence','unique_cases','week4_contract','dependency_graph','derived_execution','required_metrics','report','week4_contract','derived_execution']; k=keys[i-1]; v=c[k]; print(f'STEP {"PASS" if v["passed"] else "FAIL"} {i}: {v["message"]}\n- observed: {v["observed"]}\n- required: {v["required"]}'); raise SystemExit(0 if v['passed'] else 1)
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(); parser.add_argument('command',choices=['setup','grade']+[f'check-step-{n}' for n in range(1,13)]); args=parser.parse_args()
-    if args.command=='setup': setup()
-    elif args.command=='grade': grade()
-    else: check_step(int(args.command.rsplit('-',1)[1]))
+ p=argparse.ArgumentParser(); p.add_argument('command'); a=p.parse_args(); grade() if a.command=='grade' else step(int(a.command.rsplit('-',1)[1]))

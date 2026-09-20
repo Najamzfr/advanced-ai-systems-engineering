@@ -1,0 +1,15 @@
+services:
+  assistant:
+    build: .
+    ports: ["8080:8080"]
+    env_file: [.env]
+    environment:
+      RELEASE_VERSION: week8-compose
+      COURSE_WORK_ROOT: /course-work
+    volumes:
+      - ${COURSE_WORK_ROOT:-../course-work}:/course-work
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/readyz')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5

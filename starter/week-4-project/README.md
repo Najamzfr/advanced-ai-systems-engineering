@@ -1,38 +1,39 @@
-# Week 4 · Planner-executor research release
+# Week 4 — Planner–Executor–Verifier
 
-This starter runs immediately with a deterministic smoke fixture. The smoke
-run verifies the project contract; it is not evidence for the real assignment.
+Build a multi-step evidence assistant over a pinned public-document corpus. The
+runtime is offline and deterministic so that every number can be reproduced.
+It implements a dependency-aware planner, an executor with bounded retries, a
+verifier that checks citations and answer support, and equal-budget baselines.
 
-```text
-make setup
-make run
-make test
+```bash
+make setup                 # materialise the pinned corpus and 25 cases
+make run                   # plan, execute, verify, and write reports/
+make grade                 # strict local grading
+make check-step-1          # each of the 12 checkpoint checks
 ```
 
-Then fetch the assigned data and run the real check:
+The corpus is adapted from the Python documentation (URLs are retained in the
+manifest). A learner may replace `data/eval.jsonl` with a larger approved
+export, but must preserve `case_id`, `question`, `gold_evidence`, and `steps`.
+No model call is required: the planning and evidence contracts are the skill
+being measured. Provider-backed experiments can be added after the deterministic
+baseline is passing.
 
-```text
-python scripts/fetch_data.py --cases 25
-make evaluate
-make grade
+## Runtime interface for later builds
+
+Later weeks call the same runtime rather than replaying this week's reports:
+
+```bash
+python agent_runtime.py --question "How do Python virtual environments work?" \
+  --request-id demo-001 --failure-mode tool_timeout
 ```
 
-The grader requires `data/eval.jsonl`, the declared minimum case count and a
-manifest marked `real_data`. It writes `reports/grade.json` so the course page
-can display the result without guessing from checkboxes.
+Python callers can import `execute_request(question, request_id, failure_mode)`
+from `agent_runtime.py`. It returns the plan, bounded execution, verification,
+live-execution flag, and request ID.
 
-Dataset: Held-out multi-hop questions from the Week 2 manifest  
-Source: local:week-2-eval.jsonl  
-Minimum real cases: 25  
-Required artifact: `reports/architecture_decision.md`
+When continuing from Week 2, reuse its frozen QASPER snapshot:
 
-Required measurements: task success, evidence completeness, unsupported-claim rate, model calls, token use, p95 latency
-
-The starter exposes `make check-step-1` through `make check-step-12`. Each
-target reads `reports/metrics.json` and reports observed versus required
-values. `make grade` writes structured `reports/grade.json` evidence for the
-course importer.
-
-The included provider/runtime is intentionally small and deterministic. Extend
-it with the week’s actual system, preserve raw evidence, and document failures
-before claiming success.
+```bash
+python scripts/fetch_data.py --cases 25 --from-week2 ../week-2-project
+```

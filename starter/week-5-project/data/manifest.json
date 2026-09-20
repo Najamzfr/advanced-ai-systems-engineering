@@ -1,7 +1,7 @@
 {
-  "week": "5",
-  "dataset": "Course-owned fixed attack pack with benign controls",
-  "source": "local:security/attacks.jsonl",
+  "week": 5,
+  "dataset": "Course-owned fixed attack pack applied to the Week 4 planner-executor artifact",
+  "source": "local:security/attacks.jsonl + Week 4 reports/results.jsonl",
   "status": "smoke_fixture_only",
   "cases": 3,
   "sha256": "smoke-fixture-not-a-benchmark",

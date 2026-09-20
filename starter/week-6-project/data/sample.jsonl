@@ -1,3 +1,20 @@
-{"case_id":"smoke-001","input":"baseline case","expected":"ok"}
-{"case_id":"smoke-002","input":"failure boundary","expected":"bounded_failure"}
-{"case_id":"smoke-003","input":"recovery case","expected":"recovered"}
+{"id":"smoke-001","text":"I was charged twice for the same card purchase","label":"cash_withdrawal"}
+{"id":"smoke-002","text":"The cash machine did not give me all of my money","label":"cash_withdrawal"}
+{"id":"smoke-003","text":"Why is my transfer still pending?","label":"pending_transfer"}
+{"id":"smoke-004","text":"I need to change the PIN on my card","label":"change_pin"}
+{"id":"smoke-005","text":"My card was stolen, please block it","label":"card_swallowed"}
+{"id":"smoke-006","text":"How do I order a replacement card?","label":"card_arrival"}
+{"id":"smoke-007","text":"The exchange rate for my purchase is wrong","label":"wrong_exchange_rate_for_card_purchase"}
+{"id":"smoke-008","text":"I do not recognise this direct debit","label":"cash_withdrawal"}
+{"id":"smoke-009","text":"Can I make a bank transfer to another country?","label":"international_transfer"}
+{"id":"smoke-010","text":"My contactless payments stopped working","label":"card_payment_wrong_exchange_rate"}
+{"id":"smoke-011","text":"Where can I find my IBAN?","label":"beneficiary_not_allowed"}
+{"id":"smoke-012","text":"The app says my identity check failed","label":"verify_my_identity"}
+{"id":"smoke-013","text":"I want to top up my account with a card","label":"cash_withdrawal"}
+{"id":"smoke-014","text":"How long does a card payment reversal take?","label":"card_payment_wrong_exchange_rate"}
+{"id":"smoke-015","text":"Please explain the fee on my transfer","label":"beneficiary_not_allowed"}
+{"id":"smoke-016","text":"I forgot my passcode","label":"change_pin"}
+{"id":"smoke-017","text":"My cash withdrawal is showing twice","label":"cash_withdrawal"}
+{"id":"smoke-018","text":"The recipient has not received my transfer","label":"pending_transfer"}
+{"id":"smoke-019","text":"Can I use this card abroad?","label":"international_transfer"}
+{"id":"smoke-020","text":"The machine kept my card","label":"card_swallowed"}

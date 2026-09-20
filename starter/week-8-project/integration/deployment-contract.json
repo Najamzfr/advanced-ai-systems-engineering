@@ -1,0 +1,9 @@
+{
+  "service": "week8-integrated-assistant",
+  "runtime": {"health": "/healthz", "readiness": "/readyz", "request": "POST /v1/ask"},
+  "request": {"input": {"question": "string"}, "output": ["answer", "policy", "trace_id", "latency_ms", "execution_mode"]},
+  "evidence": {"request_trace": "reports/api-telemetry.ndjson", "release_metrics": "reports/metrics.json", "release_decision": "reports/release_report.json"},
+  "promotion": "COURSE_WORK_ROOT=../course-work make evaluate && make grade",
+  "monitoring": ["trace_id", "latency_ms", "policy", "failure", "cost_usd"],
+  "failure_behavior": "bounded response with a policy and trace; no untracked side effect"
+}

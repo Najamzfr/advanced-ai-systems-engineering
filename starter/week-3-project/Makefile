@@ -1,15 +1,14 @@
-.PHONY: setup run evaluate grade test check-step-1 check-step-2 check-step-3 check-step-4 check-step-5 check-step-6 check-step-7 check-step-8 check-step-9 check-step-10 check-step-11 check-step-12
+.PHONY: setup run evaluate test grade $(addprefix check-step-,1 2 3 4 5 6 7 8 9 10 11 12)
 setup:
 	python -m course.check setup
 run:
 	python project.py --allow-sample
 evaluate:
 	python project.py --require-real-data
-grade:
-	python -m course.check grade
 test:
 	python -m unittest discover -s tests -v
-
+grade:
+	python -m course.check grade
 check-step-1:
 	python -m course.check check-step-1
 check-step-2:

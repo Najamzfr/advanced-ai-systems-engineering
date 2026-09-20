@@ -43,6 +43,6 @@
     "minimum_cases": 50,
     "artifact": "reports/red_team_report.json",
     "smoke_fixture_is_not_benchmark": true,
-    "real_data_command": "python scripts/fetch_data.py --cases 50"
+    "real_data_command": "python scripts/fetch_data.py --cases 50 --from-week4 ../week-4-project"
   }
 }

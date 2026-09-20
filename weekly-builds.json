@@ -495,7 +495,7 @@
       "source": "local:week-2-eval.jsonl",
       "minCases": 25,
       "artifact": "reports/architecture_decision.md",
-      "command": "python scripts/fetch_data.py --cases 25"
+      "command": "python scripts/fetch_data.py --cases 25 --from-week2 ../week-2-project"
     },
     "substeps": [
       [
@@ -641,11 +641,11 @@
     ],
     "note": "A refusal-only system does not pass. Report legitimate task success beside attack success.",
     "starter": {
-      "dataset": "Course-owned fixed attack pack with benign controls",
-      "source": "local:security/attacks.jsonl",
+      "dataset": "Course-owned fixed attack pack applied to the Week 4 planner-executor artifact",
+      "source": "local:security/attacks.jsonl + Week 4 reports/results.jsonl",
       "minCases": 50,
       "artifact": "reports/red_team_report.json",
-      "command": "python scripts/fetch_data.py --cases 50"
+      "command": "python scripts/fetch_data.py --cases 50 --from-week4 ../week-4-project"
     },
     "substeps": [
       [
@@ -664,8 +664,8 @@
       ],
       [
         [
-          "python scripts/fetch_data.py --cases 50",
-          "attack manifest records category and forbidden effect"
+          "python scripts/fetch_data.py --cases 50 --from-week4 ../week-4-project",
+          "attack manifest records category, forbidden effect and Week 4 trajectory provenance"
         ],
         [
           "make evaluate",
@@ -891,7 +891,7 @@
     "problem": "Observability is only useful when it explains a real request, its cost, and the failure boundary.",
     "dataset": "Twenty real runs from the Week 4 agent",
     "source": "Learner-generated runs over the fixed project evaluation set",
-    "tools": "OpenTelemetry, Grafana OTEL-LGTM, Tempo, Prometheus, Loki, Docker Compose",
+    "tools": "OpenTelemetry Collector, Grafana, Tempo, Prometheus, Loki, Docker Compose",
     "deliverable": "A local dashboard with traces, latency, retries, tokens and estimated cost for at least 20 runs.",
     "metrics": [
       "trace completeness",
@@ -908,9 +908,11 @@
       "Inject a tool failure and locate it from the trace and logs."
     ],
     "files": [
-      "infra/docker-compose.yml",
-      "monitoring/otel-config.yaml",
+      "docker-compose.yml",
+      "monitoring/otel-collector.yaml",
       "monitoring/dashboard.json",
+      "monitoring/grafana-datasources.yaml",
+      "monitoring/failure-injection.json",
       "reports/observability_report.md",
       "tests/test_trace_contract.py"
     ],
@@ -942,7 +944,7 @@
       "source": "local:week-4-traces.jsonl",
       "minCases": 20,
       "artifact": "reports/observability_report.md",
-      "command": "python scripts/fetch_data.py --cases 20"
+      "command": "python scripts/fetch_data.py --cases 20 --from-week4 ../week-4-project"
     },
     "substeps": [
       [
@@ -1085,11 +1087,11 @@
     ],
     "note": "Project 2 remains the course capstone. It consumes the components and evidence produced in Weeks 1–7.",
     "starter": {
-      "dataset": "Full evaluation, security and recovery packs",
-      "source": "local:course-release-manifest.json",
+      "dataset": "Full evaluation, security and recovery packs from Weeks 1–7 raw artifacts",
+      "source": "local:course-release-manifest.json + Week 1–7 reports/results.jsonl",
       "minCases": 150,
       "artifact": "reports/release_report.json",
-      "command": "python scripts/fetch_data.py --cases 150"
+      "command": "python scripts/fetch_data.py --cases 150 --upstream-root ../course-work"
     },
     "substeps": [
       [
@@ -1108,12 +1110,12 @@
       ],
       [
         [
-          "python scripts/fetch_data.py --cases 150",
-          "release manifest pins all evaluation and recovery packs"
+          "python scripts/fetch_data.py --cases 150 --upstream-root ../course-work",
+          "release manifest pins the pack and seven prior-week metric hashes"
         ],
         [
           "make evaluate",
-          "full pipeline produces quality, security and recovery evidence"
+          "full pipeline produces quality, security and observability evidence"
         ],
         [
           "make check-step-2",
@@ -1140,8 +1142,8 @@
           "GRADE PASS with reproducible release evidence"
         ],
         [
-          "make check-step-4",
-          "PASS: final report and dashboard export are complete"
+          "make check-step-12",
+          "PASS: final report, dashboard and upstream evidence are complete"
         ],
         [
           "sed -n \"1,100p\" reports/final_report.md",

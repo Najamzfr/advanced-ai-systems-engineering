@@ -1,0 +1,3 @@
+# The default benchmark is dependency-free.
+# For the strict real LoRA route run: make install-lora
+# QLoRA additionally needs a compatible NVIDIA CUDA setup.

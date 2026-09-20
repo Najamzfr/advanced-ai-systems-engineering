@@ -1,14 +1,11 @@
-import argparse, json, urllib.request
+"""Fetch distinct Open-Meteo records; never repeat a response to hit a count."""
+import argparse,hashlib,json,urllib.parse,urllib.request
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-
+CITIES=[('Berlin',52.52,13.41),('Nairobi',-1.29,36.82),('Lima',-12.05,-77.04),('Tokyo',35.68,139.69),('Toronto',43.65,-79.38),('Sydney',-33.87,151.21),('Cairo',30.04,31.24),('Sao Paulo',-23.55,-46.63),('Reykjavik',64.15,-21.94),('Singapore',1.35,103.82),('London',51.51,-.13),('New York',40.71,-74.01),('Mumbai',19.08,72.88),('Cape Town',-33.92,18.42),('Mexico City',19.43,-99.13),('Paris',48.86,2.35),('Seoul',37.57,126.98),('Dubai',25.2,55.27),('Buenos Aires',-34.6,-58.38),('Auckland',-36.85,174.76),('Madrid',40.42,-3.7),('Jakarta',-6.2,106.85),('Rome',41.9,12.5),('Moscow',55.75,37.62)]
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('--cases',type=int,default=20); p.add_argument('--url',default='https://api.open-meteo.com/v1/forecast'); a=p.parse_args()
-    if a.url.startswith('http'):
-        raw=urllib.request.urlopen(a.url,timeout=60).read()
-        (ROOT/'data/source.bin').write_bytes(raw)
-    else:
-        raw=b'course-source-reference'
-    print('Downloaded source bytes to data/source.bin. Implement the week-specific parser, write data/eval.jsonl, then update the manifest checksum before running make evaluate.')
-
+ p=argparse.ArgumentParser(); p.add_argument('--cases',type=int,default=20); a=p.parse_args(); wanted=min(a.cases,len(CITIES)); rows=[]; source=[]
+ for i,(city,lat,lon) in enumerate(CITIES[:wanted]):
+  url='https://api.open-meteo.com/v1/forecast?'+urllib.parse.urlencode({'latitude':lat,'longitude':lon,'current':'temperature_2m,wind_speed_10m','timezone':'UTC'}); raw=urllib.request.urlopen(url,timeout=30).read(); source.append(raw); cur=json.loads(raw).get('current',{}); eid='weather-'+str(i+1).zfill(3); rows.append({'case_id':f'week-3-{i+1:04d}','question':f'What are the current temperature and wind speed in {city}?','latitude':lat,'longitude':lon,'location':city,'evidence_id':eid,'expected_tool':'search_documents','temperature_2m':cur.get('temperature_2m'),'wind_speed_10m':cur.get('wind_speed_10m'),'source_record':'Open-Meteo API','source_url':url})
+ payload=''.join(json.dumps(r,sort_keys=True)+'\n' for r in rows); (ROOT/'data/eval.jsonl').write_text(payload); (ROOT/'data/source.download').write_bytes(b'\n'.join(source)); sha=hashlib.sha256(payload.encode()).hexdigest(); (ROOT/'data/manifest.json').write_text(json.dumps({'week':3,'dataset':'Open-Meteo current weather','source':'https://api.open-meteo.com/v1/forecast','status':'real_data','cases':len(rows),'unique_case_ids':len({r['case_id'] for r in rows}),'sha256':sha,'provenance':'one live public response per distinct coordinate; no repetition','minimum_cases_for_grade':20},indent=2)+'\n'); print(f'Wrote {len(rows)} distinct Open-Meteo records; sha256={sha}')
 if __name__=='__main__': main()
